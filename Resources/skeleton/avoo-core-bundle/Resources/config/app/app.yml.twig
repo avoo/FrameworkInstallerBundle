@@ -68,13 +68,6 @@ sylius_rbac:
         {{ applicationName|lower }}.user.update: Edit user
         {{ applicationName|lower }}.user.delete: Delete user
 
-        {{ applicationName|lower }}.manage.group: Manage groups
-        {{ applicationName|lower }}.group.show: Show group
-        {{ applicationName|lower }}.group.index: List groups
-        {{ applicationName|lower }}.group.create: Create group
-        {{ applicationName|lower }}.group.update: Edit group
-        {{ applicationName|lower }}.group.delete: Delete group
-
         sylius.manage.role: Manage roles
         sylius.role.show: Show role
         sylius.role.index: List roles
@@ -105,13 +98,12 @@ sylius_rbac:
 
     permissions_hierarchy:
         {{ applicationName|lower }}.manage.user: [{{ applicationName|lower }}.user.show, {{ applicationName|lower }}.user.index, {{ applicationName|lower }}.user.create, {{ applicationName|lower }}.user.update, {{ applicationName|lower }}.user.delete]
-        {{ applicationName|lower }}.manage.group: [{{ applicationName|lower }}.group.show, {{ applicationName|lower }}.group.index, {{ applicationName|lower }}.group.create, {{ applicationName|lower }}.group.update, {{ applicationName|lower }}.group.delete]
         sylius.manage.role: [sylius.role.show, sylius.role.index, sylius.role.create, sylius.role.update, sylius.role.delete]
         {{ applicationName|lower }}.manage.permission: [{{ applicationName|lower }}.permission.show, {{ applicationName|lower }}.permission.index, {{ applicationName|lower }}.permission.create, {{ applicationName|lower }}.permission.update, {{ applicationName|lower }}.permission.delete]
         {{ applicationName|lower }}.manage.locale: [{{ applicationName|lower }}.locale.show, {{ applicationName|lower }}.locale.index, {{ applicationName|lower }}.locale.create, {{ applicationName|lower }}.locale.update, {{ applicationName|lower }}.locale.delete]
         {{ applicationName|lower }}.manage.settings: [{{ applicationName|lower }}.settings.general, {{ applicationName|lower }}.settings.security]
-        {{ applicationName|lower }}.security: [{{ applicationName|lower }}.manage.permission, sylius.manage.role, {{ applicationName|lower }}.manage.user, {{ applicationName|lower }}.manage.group, {{ applicationName|lower }}.accounts]
-        {{ applicationName|lower }}.accounts: [{{ applicationName|lower }}.manage.user, {{ applicationName|lower }}.manage.group]
+        {{ applicationName|lower }}.security: [{{ applicationName|lower }}.manage.permission, sylius.manage.role, {{ applicationName|lower }}.manage.user, {{ applicationName|lower }}.accounts]
+        {{ applicationName|lower }}.accounts: [{{ applicationName|lower }}.manage.user]
     security_roles:
         ROLE_ADMINISTRATION_ACCESS: Can access administration
         ROLE_API_ACCESS: Can access REST API

@@ -14,24 +14,4 @@
             </constraint>
         </property>
     </class>
-
-    <class name="{{ applicationName }}\Component\Core\Model\Group">
-    <property name="name">
-        <constraint name="NotBlank">
-            <option name="message">{{ applicationName|lower }}.group.name.not_blank</option>
-            <option name="groups">
-                <value>{{ applicationName }}</value>
-            </option>
-        </constraint>
-        <constraint name="Length">
-            <option name="min">2</option>
-            <option name="minMessage">{{ applicationName|lower }}.group.name.min</option>
-            <option name="max">255</option>
-            <option name="maxMessage">{{ applicationName|lower }}.group.name.max</option>
-            <option name="groups">
-                <value>{{ applicationName }}</value>
-            </option>
-        </constraint>
-    </property>
-    </class>
 </constraint-mapping>
