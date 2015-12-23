@@ -1,6 +1,6 @@
 {
     "name": "avoo/avoo-installer-bundle",
-    "description": "Installer bundle for Symfony2",
+    "description": "Installer bundle for Symfony2 based on Sylius",
     "type": "symfony-bundle",
     "require": {
         "php": ">=5.3.3"
