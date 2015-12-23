@@ -1,0 +1,22 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <parameters>
+        <parameter key="avoo_demo.form.type.news.class">Avoo\DemoBundle\Form\Type\NewsFormType</parameter>
+    </parameters>
+
+    <services>
+        <service id="avoo_demo.base_type_extension" class="Avoo\DemoBundle\Form\Extension\BaseTypeExtension">
+            <tag name="form.type_extension" alias="form" />
+        </service>
+
+        <service id="avoo_demo.form.type.news" class="%avoo_demo.form.type.news.class%">
+            <argument>%avoo_demo.model.news.class%</argument>
+            <argument>%avoo_demo.validation_group.news%</argument>
+            <tag name="form.type" alias="avoo_demo_news" />
+        </service>
+    </services>
+</container>

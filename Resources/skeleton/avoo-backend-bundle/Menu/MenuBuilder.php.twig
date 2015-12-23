@@ -1,0 +1,141 @@
+<?php
+
+namespace {{ namespace }}\Menu;
+
+{% block use_statements %}
+use Knp\Menu\FactoryInterface;
+use Knp\Menu\ItemInterface;
+use {{ applicationName }}\Bundle\BackendBundle\Event\MenuBuilderEvents;
+use Sylius\Component\Rbac\Authorization\AuthorizationCheckerInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Core\SecurityContextInterface;
+{% endblock use_statements %}
+
+{% block class_definition %}
+/**
+ * Class MenuBuilder
+ */
+class MenuBuilder
+{% endblock class_definition %}
+{
+{% block class_body %}
+    /**
+     * Menu factory.
+     *
+     * @var FactoryInterface
+     */
+    protected $factory;
+
+    /**
+     * Request.
+     *
+     * @var Request
+     */
+    protected $request;
+
+    /**
+     * @var EventDispatcherInterface
+     */
+    protected $eventDispatcher;
+
+    /**
+     * @var AuthorizationCheckerInterface
+     */
+    protected $authorizationChecker;
+
+    /**
+     * @var array $menuBuilder
+     */
+    protected $menuBuilder;
+
+    /**
+     * Constructor.
+     *
+     * @param FactoryInterface              $factory
+     * @param EventDispatcherInterface      $eventDispatcher,
+     * @param AuthorizationCheckerInterface $authorizationChecker
+     */
+    public function __construct(
+        FactoryInterface $factory,
+        EventDispatcherInterface $eventDispatcher,
+        AuthorizationCheckerInterface $authorizationChecker,
+        $menuBuilder
+    ) {
+        $this->factory = $factory;
+        $this->eventDispatcher = $eventDispatcher;
+        $this->authorizationChecker = $authorizationChecker;
+        $this->menuBuidler = $menuBuilder;
+    }
+
+    /**
+     * Sets the request the service
+     *
+     * @param Request $request
+     */
+    public function setRequest(Request $request = null)
+    {
+        $this->request = $request;
+    }
+
+    /**
+     * Builds menu.
+     *
+     * @return ItemInterface
+     */
+    public function createMenu()
+    {
+        $menu = $this->factory->createItem('root',
+            $this->getChildrenAttributes($this->menuBuidler)
+        );
+
+        $menu->setCurrentUri($this->request->getRequestUri());
+
+        if (isset($this->menuBuidler['nav'])) {
+            foreach ($this->menuBuidler['nav'] as $name => $child) {
+                $this->addChild($menu, $name, $child);
+            }
+        }
+
+        $this->eventDispatcher->dispatch(MenuBuilderEvents::MENU_BUILDER, new MenuBuilderEvents($this->factory, $menu));
+
+        return $menu;
+    }
+
+    private function addChild(ItemInterface $menu, $name, $child)
+    {
+        if (!$this->authorizationChecker->isGranted($child['role'])) {
+            return;
+        }
+
+        $attributes = $this->getChildrenAttributes($child);
+
+        if ($this->request->get('_route') === $child['route']) {
+            if (isset($attributes['attributes']['class'])) {
+                $attributes['attributes']['class'] = $attributes['attributes']['class'] . ' active';
+            } else {
+                $attributes['attributes']['class'] = 'active';
+            }
+        }
+
+        $subMenu = $menu->addChild($name, array_merge( $attributes, array('route' => $child['route'])))
+            ->setLabel($child['label']);
+
+        if (isset($child['sub_menu']) && !empty($child['sub_menu'])) {
+            foreach ($child['sub_menu'] as $subName => $subChild) {
+                $this->addChild($subMenu, $subName, $subChild);
+            }
+        }
+    }
+
+    /**
+     * @var array $node
+     *
+     * @return array
+     */
+    private function getChildrenAttributes($node)
+    {
+        return isset($node['attributes']) ? $node['attributes'] : array();
+    }
+{% endblock class_body %}
+}

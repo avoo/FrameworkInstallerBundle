@@ -1,0 +1,167 @@
+<?php
+
+namespace {{ namespace }}\Component\Core\Model;
+
+{% block use_statements %}
+use Doctrine\Common\Collections\ArrayCollection;
+use FOS\UserBundle\Model\User as BaseUser;
+use Sylius\Component\Rbac\Model\Role;
+use Sylius\Component\Rbac\Model\RoleInterface;
+{% endblock use_statements %}
+
+{% block class_definition %}
+/**
+ * Class User
+ *
+ * @author Jérémy Jégou <jejeavo@gmail.com>
+ */
+class User extends BaseUser implements UserInterface
+{% endblock class_definition %}
+{
+{% block class_body %}
+    /**
+     * @var \DateTime $createdAt
+     */
+    protected $createdAt;
+
+    /**
+     * @var \DateTime $updatedAt
+     */
+    protected $updatedAt;
+
+    /**
+     * @var \DateTime $deletedAt
+     */
+    protected $deletedAt;
+
+    /**
+     * @var ArrayCollection $oauthAccounts
+     */
+    protected $authorizationRoles;
+
+    public function __construct()
+    {
+        $this->createdAt = new \DateTime();
+        $this->authorizationRoles = new ArrayCollection();
+
+        parent::__construct();
+    }
+
+    /**
+    * {@inheritdoc}
+    */
+    public function getCreatedAt()
+    {
+        return $this->createdAt;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setCreatedAt(\DateTime $createdAt)
+    {
+        $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getUpdatedAt()
+    {
+        return $this->updatedAt;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setUpdatedAt(\DateTime $updatedAt)
+    {
+        $this->updatedAt = $updatedAt;
+
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function isDeleted()
+    {
+        return null !== $this->deletedAt && new \DateTime() >= $this->deletedAt;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getDeletedAt()
+    {
+        return $this->deletedAt;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setDeletedAt(\DateTime $deletedAt)
+    {
+        $this->deletedAt = $deletedAt;
+
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getAuthorizationRoles()
+    {
+        return $this->authorizationRoles;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function addAuthorizationRole(RoleInterface $role)
+    {
+        if (!$this->hasAuthorizationRole($role)) {
+            $this->authorizationRoles->add($role);
+        }
+
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function removeAuthorizationRole(RoleInterface $role)
+    {
+        if ($this->hasAuthorizationRole($role)) {
+            $this->authorizationRoles->removeElement($role);
+        }
+
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function hasAuthorizationRole(RoleInterface $role)
+    {
+        return $this->authorizationRoles->contains($role);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getRoles()
+    {
+        $roles = parent::getRoles();
+
+        /** @var Role $role */
+        foreach ($this->getAuthorizationRoles() as $role) {
+            $roles = array_merge($roles, $role->getSecurityRoles());
+        }
+
+        return $roles;
+    }
+{% endblock class_body %}
+}

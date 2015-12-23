@@ -1,0 +1,19 @@
+<?php
+
+namespace {{ namespace }}\Doctrine\ORM;
+
+{% block use_statements %}
+use Sylius\Bundle\ResourceBundle\Doctrine\ORM\EntityRepository;
+{% endblock use_statements %}
+
+{% block class_definition %}
+/**
+ * User repository.
+ *
+ * @author Jérémy Jégou <jejeavo@gmail.com>
+ */
+class UserRepository extends EntityRepository
+{% endblock class_definition %}
+{
+{% block class_body %}{% endblock class_body %}
+}

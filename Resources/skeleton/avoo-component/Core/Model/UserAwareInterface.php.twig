@@ -1,0 +1,30 @@
+<?php
+
+namespace {{ namespace }}\Component\Core\Model;
+{% block use_statements %}{% endblock use_statements %}
+
+{% block class_definition %}
+/**
+ * User aware interface.
+ */
+interface UserAwareInterface
+{% endblock class_definition %}
+{
+{% block class_body %}
+    /**
+     * Get user.
+     *
+     * @return UserInterface
+     */
+    public function getUser();
+
+    /**
+     * Set user.
+     *
+     * @param UserInterface $user
+     *
+     * @return self
+     */
+    public function setUser(UserInterface $user);
+{% endblock class_body %}
+}

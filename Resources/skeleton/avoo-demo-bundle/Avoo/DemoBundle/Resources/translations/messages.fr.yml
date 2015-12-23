@@ -1,0 +1,23 @@
+avoo_demo:
+    button:
+        add: Ajouter
+        cancel: Annuler
+        save: Enregistrer
+        edit: Editer
+        show: Voir
+        delete: Supprimer
+        next: Suivant
+        prev: Précédent
+        return: Retour
+    label:
+        name: Nom
+        title: Titre
+        actions: Actions
+        choose_file: Choisissez un fichier
+    empty:
+        news: Aucune news pour le moment
+    news:
+        list: Liste des news
+        add: Ajouter une news
+        show: Voir la news "%name%"
+        update: Edition de la news "%name%"

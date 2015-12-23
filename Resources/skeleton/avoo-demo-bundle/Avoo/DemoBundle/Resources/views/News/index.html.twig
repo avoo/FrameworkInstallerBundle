@@ -1,0 +1,12 @@
+{% extends 'AvooDemoBundle::layout.html.twig' %}
+{% from '@AvooDemo/News/macros.html.twig' import list %}
+
+{% block title %}{{ 'avoo_demo.news.list'|trans }}{% endblock %}
+
+{% block content %}
+    {{ list(news) }}
+
+    <div class="actions-menu">
+        {{ actions.add(path('avoo_demo_news_create')) }}
+    </div>
+{% endblock %}

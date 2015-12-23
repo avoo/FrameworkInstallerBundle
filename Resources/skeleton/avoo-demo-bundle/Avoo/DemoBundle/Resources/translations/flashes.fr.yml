@@ -1,0 +1,5 @@
+avoo_demo:
+    news:
+        create: La news a bien été créé.
+        update: La news a bien été mise à jour.
+        delete: La news a bien été supprimé.

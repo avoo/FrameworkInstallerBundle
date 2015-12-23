@@ -1,0 +1,84 @@
+<?php
+
+namespace {{ namespace }}\Form\Type;
+
+{% block use_statements %}
+use Sylius\Bundle\ResourceBundle\Form\Type\AbstractResourceType;
+use FOS\UserBundle\Form\Type\ProfileFormType;
+use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormInterface;
+use Symfony\Component\OptionsResolver\OptionsResolverInterface;
+{% endblock use_statements %}
+
+{% block class_definition %}
+class UserType extends AbstractResourceType
+{% endblock class_definition %}
+{
+{% block class_body %}
+    /** @var string */
+    private $dataClass;
+
+    /**
+     * {@inheritdoc}
+     */
+    public function __construct($dataClass)
+    {
+        $this->dataClass = $dataClass;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function buildForm(FormBuilderInterface $builder, array $options)
+    {
+        $this->buildUserForm($builder, $options);
+
+        $builder
+            ->add('username', 'text', array(
+                'label' => '{{ applicationName|lower }}.label.username'
+            ))
+            ->add('email', 'email', array(
+                'label' => '{{ applicationName|lower }}.label.email'
+            ))
+            ->add('plainPassword', 'password', array(
+                'label' => '{{ applicationName|lower }}_core.label.password'
+            ))
+            ->add('enabled', 'checkbox', array(
+                'label' => '{{ applicationName|lower }}_core.label.enabled'
+            ))
+            ->add('authorizationRoles', 'sylius_role_choice', array(
+                'label'    => '{{ applicationName|lower }}_core.label.roles',
+                'multiple' => true,
+                'expanded' => true,
+                'required' => false
+            ));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setDefaultOptions(OptionsResolverInterface $resolver)
+    {
+        $groups = $this->validationGroups;
+        $resolver->setDefaults(array(
+            'data_class' => $this->dataClass,
+            'validation_groups' => function (FormInterface $form) use ($groups) {
+                $data = $form->getData();
+                if ($data && !$data->getId()) {
+                    $groups[] = 'user_create';
+                }
+
+                return $groups;
+            },
+        ));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getName()
+    {
+        return '{{ applicationName|lower }}_user';
+    }
+{% endblock class_body %}
+}

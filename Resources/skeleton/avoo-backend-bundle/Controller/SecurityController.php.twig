@@ -1,0 +1,98 @@
+<?php
+
+namespace {{ namespace }}\Controller;
+
+{% block use_statements %}
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
+use Symfony\Component\Security\Core\SecurityContext;
+{% endblock use_statements %}
+
+{% block class_definition %}
+/**
+ * Class SecurityController
+ */
+class SecurityController extends Controller
+{% endblock class_definition %}
+{
+{% block class_body %}
+    /**
+     * Target action for _switch_user=_exit, redirects admin back to impersonated user
+     *
+     * @param string $username
+     *
+     * @return RedirectResponse
+     *
+     * @throws AccessDeniedException
+     * @throws NotFoundHttpException
+     */
+    public function exitUserSwitchAction($username)
+    {
+        if (!$this->get('security.context')->isGranted('ROLE_SYLIUS_ADMIN')) {
+            throw new AccessDeniedException();
+        }
+
+        $user = $this->get('{{ applicationName|lower }}.repository.user')->findOneBy(array('usernameCanonical' => $username));
+
+        if (!$user) {
+            throw new NotFoundHttpException(sprintf('User with username %s does not exist.', $username));
+        }
+
+        return $this->redirect($this->generateUrl('{{ applicationName|lower }}_backend_user_show', array('id' => $user->getId())));
+    }
+
+    /**
+     * @param Request $request
+     *
+     * @return Response
+     */
+    public function loginAction(Request $request)
+    {
+        $session = $request->getSession();
+        $error = null;
+
+        if ($request->attributes->has(SecurityContext::AUTHENTICATION_ERROR)) {
+            $error = $request->attributes->get(SecurityContext::AUTHENTICATION_ERROR);
+        } elseif (null !== $session && $session->has(SecurityContext::AUTHENTICATION_ERROR)) {
+            $error = $session->get(SecurityContext::AUTHENTICATION_ERROR);
+            $session->remove(SecurityContext::AUTHENTICATION_ERROR);
+        }
+
+        if ($error) {
+            $error = $error->getMessage();
+        }
+
+        $lastUsername = (null === $session) ? '' : $session->get(SecurityContext::LAST_USERNAME);
+
+        $csrfToken = $this
+            ->getFormCsrfProvider()
+            ->generateCsrfToken('authenticate')
+        ;
+
+        return $this->render('{{ applicationName }}BackendBundle:Security:login.html.twig', array(
+            'last_username' => $lastUsername,
+            'error'         => $error,
+            'token'         => $csrfToken,
+        ));
+    }
+
+    public function checkAction()
+    {
+        throw new \RuntimeException('You must configure the check path to be handled by the firewall.');
+    }
+
+    public function logoutAction()
+    {
+        throw new \RuntimeException('You must activate the logout in your security firewall configuration');
+    }
+
+    private function getFormCsrfProvider()
+    {
+        return $this->get('form.csrf_provider');
+    }
+{% endblock class_body %}
+}

@@ -1,0 +1,55 @@
+<?php
+
+namespace {{ namespace }}\Component\Core\Model;
+
+{% block use_statements %}
+use Doctrine\Common\Collections\ArrayCollection;
+use FOS\UserBundle\Model\UserInterface as BaseUserInterface;
+use Sylius\Component\Rbac\Model\IdentityInterface;
+use Sylius\Component\Resource\Model\TimestampableInterface;
+use Sylius\Component\Rbac\Model\RoleInterface;
+{% endblock use_statements %}
+
+{% block class_definition %}
+/**
+ * Interface UserInterface
+ */
+interface UserInterface extends BaseUserInterface, IdentityInterface, TimestampableInterface
+{% endblock class_definition %}
+{
+{% block class_body %}
+    /**
+     * Get roles
+     *
+     * @return ArrayCollection
+     */
+    public function getAuthorizationRoles();
+
+    /**
+     * Add role
+     *
+     * @param RoleInterface $role
+     *
+     * @return $this
+     */
+    public function addAuthorizationRole(RoleInterface $role);
+
+    /**
+     * Remove role
+     *
+     * @param RoleInterface $role
+     *
+     * @return $this
+     */
+    public function removeAuthorizationRole(RoleInterface $role);
+
+    /**
+     * Has role
+     *
+     * @param RoleInterface $role
+     *
+     * @return boolean
+     */
+    public function hasAuthorizationRole(RoleInterface $role);
+{% endblock class_body %}
+}

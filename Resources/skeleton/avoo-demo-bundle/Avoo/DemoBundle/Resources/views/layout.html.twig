@@ -1,0 +1,50 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr" lang="fr">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>{% block title %}Avoo Demo{% endblock %}</title>
+    <link id="favicon" rel="shortcut icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" />
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+    <link href="http://code.ionicframework.com/ionicons/2.0.0/css/ionicons.min.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body {% block bodyClass %}{% endblock %}>
+{% block page %}
+    {% import 'AvooDemoBundle:Macros:actions.html.twig' as actions %}
+
+    {% if form is defined %}
+        {% form_theme form '@AvooDemo/forms.html.twig' %}
+    {% endif %}
+
+    <div class="container">
+        <div class="masthead">
+            <h3 class="text-muted">
+                <a href="{{ path('avoo_demo_root') }}">Avoo Demo</a>
+            </h3>
+        </div>
+
+        {% block flashMessages %}
+            {% for type, messages in app.session.flashbag.all() %}
+                {% for key, message in messages %}
+                    <div class="alert bg-{{ type }} fade in">
+                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                        <p class="text-center">{{ message|trans }}</p>
+                    </div>
+                {% endfor %}
+            {% endfor %}
+        {% endblock %}
+
+        <div class="row">
+            <h4 class="row popover-title control-label">{{ block('title') }}</h4>
+            <div class="internal_content">
+                {% block content %}{% endblock %}
+            </div>
+
+            <div class="clear"></div>
+        </div>
+        {% block footer %}{% endblock %}
+    </div>
+{% endblock %}
+</body>
+</html>

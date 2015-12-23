@@ -1,0 +1,5 @@
+avoo_demo:
+    driver: doctrine/orm
+    classes:
+        news:
+            model: Avoo\DemoBundle\Entity\News

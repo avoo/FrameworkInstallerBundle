@@ -1,0 +1,14 @@
+{% extends 'AvooDemoBundle::layout.html.twig' %}
+{% from 'AvooDemoBundle:News:macros.html.twig' import show %}
+
+{% block title %}{{ 'avoo_demo.news.show'|trans({ '%name%' : news.title }) }}{% endblock %}
+
+{% block content %}
+
+    {{ show(news) }}
+
+    <div class="actions-menu">
+        {{ actions.cancel(path('avoo_demo_news_index'), 'avoo_demo.button.return'|trans) }}
+        {{ actions.edit(path('avoo_demo_news_edit', {id: news.id})) }}
+    </div>
+{% endblock %}

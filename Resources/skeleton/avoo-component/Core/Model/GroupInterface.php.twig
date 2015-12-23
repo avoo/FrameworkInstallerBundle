@@ -1,0 +1,20 @@
+<?php
+
+namespace {{ namespace }}\Component\Core\Model;
+
+{% block use_statements %}
+use FOS\UserBundle\Model\GroupInterface as BaseGroupInterface;
+{% endblock use_statements %}
+
+{% block class_definition %}
+/**
+ * Interface GroupInterface
+ *
+ * @author Jérémy Jégou <jejeavo@gmail.com>
+ */
+interface GroupInterface extends BaseGroupInterface
+{% endblock class_definition %}
+{
+{% block class_body %}
+{% endblock class_body %}
+}

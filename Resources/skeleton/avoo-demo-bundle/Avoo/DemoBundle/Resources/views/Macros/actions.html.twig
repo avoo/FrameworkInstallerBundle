@@ -1,0 +1,88 @@
+{% macro add(url, message, glyphicon='fa-plus') %}
+    {% import _self as actions %}
+
+    <a href="{{ url }}" class="btn btn-sm btn-primary margin">
+        {{ actions.glyphicon(glyphicon) }}
+        <span>{{ message is empty ? 'avoo_demo.button.add'|trans : message }}</span>
+    </a>
+{% endmacro %}
+
+{% macro show(url, message, glyphicon='fa-list-alt') %}
+    {% import _self as actions %}
+
+    <a href="{{ url }}" class="btn btn-sm btn-success margin">
+        {{ actions.glyphicon(glyphicon) }}
+        <span>{{ message is empty ? 'avoo_demo.button.show'|trans : message }}</span>
+    </a>
+{% endmacro %}
+
+{% macro edit(url, message, glyphicon=true) %}
+    {% import _self as actions %}
+
+    <a href="{{ url }}" class="btn btn-sm btn-info margin">
+        {% if glyphicon == true %}
+            {{ actions.glyphicon('fa-edit') }}
+        {% endif %}
+        <span>{{ message is empty ? 'avoo_demo.button.edit'|trans : message }}</span>
+    </a>
+{% endmacro %}
+
+{% macro delete(url, message, glyphicon='glyphicon-remove') %}
+    {% import _self as actions %}
+
+    <a href="{{ url }}" class="btn btn-sm btn-danger margin delete">
+        <i class="glyphicon {{ glyphicon }}"></i>
+        <span>{{ message is empty ? 'avoo_demo.button.delete'|trans : message }}</span>
+    </a>
+{% endmacro %}
+
+{% macro cancel(url, message, glyphicon='fa-arrow-left') %}
+    {% import _self as actions %}
+
+    <a href="{{ url }}" class="btn btn-sm btn-default margin">
+        {% if glyphicon == true %}
+            {{ actions.glyphicon(glyphicon) }}
+        {% endif %}
+        <span>{{ message is empty ? 'avoo_demo.button.cancel'|trans : message }}</span>
+    </a>
+{% endmacro %}
+
+{% macro submit(value, class='btn-primary', glyphicon='fa-save', glyphbefore=false) %}
+    {% import _self as actions %}
+
+    <button type="submit" class="btn btn-sm {{ class }}">
+        {% if glyphbefore == true %}
+            {{ actions.glyphicon(glyphicon) }}
+        {% endif %}
+        {{ value is empty ? 'avoo_demo.button.save'|trans : value }}
+        {% if glyphbefore == false %}
+            {{ actions.glyphicon(glyphicon) }}
+        {% endif %}
+    </button>
+{% endmacro %}
+
+{% macro next(url, message, glyphicon='glyphicon-arrow-right') %}
+    {% import _self as actions %}
+
+    <a href="{{ url }}" class="btn btn-sm btn-success">
+        <span>{{ message is empty ? 'avoo_demo.button.next'|trans : message }}</span>
+        {% if glyphicon == true %}
+            {{ actions.glyphicon(glyphicon) }}
+        {% endif %}
+    </a>
+{% endmacro %}
+
+{% macro glyphicon(glyphicon) %}
+    <i class="fa {{ glyphicon }}"></i>
+{% endmacro %}
+
+{% macro title(text, glyphicon) %}
+    {% import _self as actions %}
+    <h1>{{ actions.glyphicon(glyphicon) }} {{ text }}</h1>
+{% endmacro %}
+
+{% macro pagination(paginator, options) %}
+    {% if paginator.haveToPaginate()|default(false) %}
+        {{ pagerfanta(paginator, 'twitter_bootstrap3_translated', options|default({})) }}
+    {% endif %}
+{% endmacro %}

@@ -1,0 +1,20 @@
+{{ applicationName|lower }}_dashboard:
+    path: /dashboard
+    methods: [GET]
+    defaults:
+        _controller: {{ applicationName|lower }}.controller.backend.dashboard:indexAction
+
+{{ applicationName|lower }}_backend_security:
+    resource: @{{ applicationName }}BackendBundle/Resources/config/routing/security.yml
+
+{{ applicationName|lower }}_backend_user:
+    resource: @{{ applicationName }}BackendBundle/Resources/config/routing/user.yml
+    prefix: /users
+
+{{ applicationName|lower }}_backend_group:
+    resource: @{{ applicationName }}BackendBundle/Resources/config/routing/group.yml
+    prefix: /groups
+
+{{ applicationName|lower }}_backend_role:
+    resource: @{{ applicationName }}BackendBundle/Resources/config/routing/role.yml
+    prefix: /roles

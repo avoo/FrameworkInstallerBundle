@@ -1,0 +1,135 @@
+{% block body %}
+{{ "{% macro add(url, message, role=null, icon='fa-plus') %}" }}
+    {{ "{% import _self as actions %}" }}
+
+    {{ "{% if role is null or is_resource_granted(role) %}" }}
+        <a href="{{ "{{ url }}" }}" class="btn btn-sm btn-primary margin">
+            {{ "{{ actions.icon(icon) }}" }}
+            <span>{{ "{{ message is empty ? '" ~ applicationName|lower ~ "_backend.button.add'|trans : message }}" }}</span>
+        </a>
+    {{ "{% endif %}" }}
+{{ "{% endmacro %}" }}
+
+{{ "{% macro show(url, message, role=null, icon='fa-list-alt') %}" }}
+    {{ "{% import _self as actions %}" }}
+
+    {{ "{% if role is null or is_resource_granted(role) %}" }}
+        <a href="{{ "{{ url }}" }}" class="btn btn-sm btn-success margin">
+            {{ "{{ actions.icon(icon) }}" }}
+            <span>{{ "{{ message is empty ? '" ~ applicationName|lower ~ "_backend.button.show'|trans : message }}" }}</span>
+        </a>
+    {{ "{% endif %}" }}
+{{ "{% endmacro %}" }}
+
+{{ "{% macro edit(url, message, role=null, icon=true) %}" }}
+    {{ "{% import _self as actions %}" }}
+
+    {{ "{% if role is null or is_resource_granted(role)%}" }}
+        <a href="{{ "{{ url }}" }}" class="btn btn-sm btn-info margin">
+            {{ "{% if icon == true %}" }}
+                {{ "{{ actions.icon('fa-edit') }}" }}
+            {{ "{% endif %}" }}
+            <span>{{ "{{ message is empty ? '" ~ applicationName|lower ~ "_backend.button.edit'|trans : message }}" }}</span>
+        </a>
+    {{ "{% endif %}" }}
+{{ "{% endmacro %}" }}
+
+{{ "{% macro delete(url, message, role=null, modal=true, icon='fa-remove') %}" }}
+    {{ "{% import _self as actions %}" }}
+
+    {{ "{% if role is null or is_resource_granted(role) %}" }}
+        <form action="{{ "{{ url }}" }}" method="post" class="delete-form" style="display: inline;" novalidate>
+            <input type="hidden" name="_method" value="DELETE">
+            <button class="btn btn-sm btn-danger margin {{ "{% if modal %} btn-delete{% endif %}" }}" type="submit">
+                <i class="fa {{ "{{ icon }}" }}"></i>
+                <span>{{ "{{ message is empty ? '" ~ applicationName|lower ~ "_backend.button.delete'|trans : message }}" }}</span>
+            </button>
+        </form>
+    {{ "{% endif %}" }}
+{{ "{% endmacro %}" }}
+
+{{ "{% macro cancel(url, message, icon='fa-arrow-left') %}" }}
+    {{ "{% import _self as actions %}" }}
+
+    <a href="{{ "{{ url }}" }}" class="btn btn-sm btn-default margin">
+        {{ "{% if icon == true %}" }}
+            {{ "{{ actions.icon(icon) }}" }}
+        {{ "{% endif %}" }}
+        <span>{{ "{{ message is empty ? '" ~ applicationName|lower ~ "_backend.button.cancel'|trans : message }}" }}</span>
+    </a>
+{{ "{% endmacro %}" }}
+
+{{ "{% macro submit(value, class='btn-primary', icon='fa-save', iconbefore=false) %}" }}
+    {{ "{% import _self as actions %}" }}
+
+    <button type="submit" class="btn btn-sm {{ "{{ class }}" }}">
+        {{ "{% if iconbefore == true %}" }}
+            {{ "{{ actions.icon(icon) }}" }}
+        {{ "{% endif %}" }}
+        {{ "{{ value is empty ? '" ~ applicationName|lower ~ "_backend.button.save'|trans : value }}" }}
+        {{ "{% if iconbefore == false %}" }}
+            {{ "{{ actions.icon(icon) }}" }}
+        {{ "{% endif %}" }}
+    </button>
+{{ "{% endmacro %}" }}
+
+{{ "{% macro next(url, message, icon='arrow-right') %}" }}
+    {{ "{% import _self as actions %}" }}
+
+    <a href="{{ "{{ url }}" }}" class="btn btn-sm btn-success">
+        <span>{{ "{{ message is empty ? '" ~ applicationName|lower ~ "_backend.button.next'|trans : message }}" }}</span>
+        {{ "{% if icon == true %}" }}
+            {{ "{{ actions.icon(icon) }}" }}
+        {{ "{% endif %}" }}
+    </a>
+{{ "{% endmacro %}" }}
+
+{{ "{% macro default(url, message, icon) %}" }}
+    {{ "{% import _self as actions %}" }}
+
+    <a href="{{ "{{ url }}" }}" class="btn btn-sm btn-default">
+        {{ "{% if icon is not empty %}" }}
+            {{ "{{ actions.icon(icon) }}" }}
+        {{ "{% endif %}" }}
+
+        <span>{{ "{{ message }}" }}</span>
+    </a>
+{{ "{% endmacro %}" }}
+
+{{ "{% macro icon(icon) %}" }}
+    <i class="fa {{ "{{ icon }}" }}"></i>
+{{ "{% endmacro %}" }}
+
+{{ "{% macro title(text, icon) %}" }}
+    {{ "{% import _self as actions %}" }}
+    <h1>{{ "{{ actions.icon(icon) }} {{ text }}" }}</h1>
+{{ "{% endmacro %}" }}
+
+{{ "{% macro export(url, message, icon=true) %}" }}
+    {{ "{% import _self as actions %}" }}
+
+    <a href="{{ "{{ url }}" }}" class="btn btn-sm btn-info">
+        {{ "{% if icon == true %}" }}
+            {{ "{{ actions.icon('fa-files-o') }}" }}
+        {{ "{% endif %}" }}
+        <span>{{ "{{ message is empty ? '" ~ applicationName|lower ~ "_backend.button.export'|trans : message }}" }}</span>
+    </a>
+{{ "{% endmacro %}" }}
+
+{{ "{% macro print(url, message, icon=true) %}" }}
+    {{ "{% import _self as actions %}" }}
+
+    <a href="{{ "{{ url }}" }}" class="btn btn-sm btn-info">
+        {{ "{% if icon == true %}" }}
+            {{ "{{ actions.icon('fa-print') }}" }}
+        {{ "{% endif %}" }}
+        <span>{{ "{{ message is empty ? '" ~ applicationName|lower ~ "_backend.button.print'|trans : message }}" }}</span>
+    </a>
+{{ "{% endmacro %}" }}
+
+{{ "{% macro pagination(paginator, options) %}" }}
+    {{ "{% if paginator.haveToPaginate()|default(false) %}" }}
+        {{ "{{ pagerfanta(paginator, 'twitter_bootstrap3_translated', options|default({})) }}" }}
+    {{ "{% endif %}" }}
+{{ "{% endmacro %}" }}
+{% endblock body %}

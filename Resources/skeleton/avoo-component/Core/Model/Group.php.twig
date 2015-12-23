@@ -1,0 +1,24 @@
+<?php
+
+namespace {{ namespace }}\Component\Core\Model;
+
+{% block use_statements %}
+use FOS\UserBundle\Model\Group as BaseGroup;
+{% endblock use_statements %}
+
+{% block class_definition %}
+/**
+ * Class Group
+ *
+ * @author Jérémy Jégou <jejeavo@gmail.com>
+ */
+class Group extends BaseGroup implements GroupInterface
+{% endblock class_definition %}
+{
+{% block class_body %}
+    public function __construct()
+    {
+        $this->roles = array();
+    }
+{% endblock class_body %}
+}

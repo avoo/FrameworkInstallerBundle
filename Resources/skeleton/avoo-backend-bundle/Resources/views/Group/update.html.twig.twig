@@ -1,0 +1,29 @@
+{% block extends %}
+    {{ "{% extends '" ~ applicationName ~ "BackendBundle::layout.html.twig' %}" }}
+{% endblock extends %}
+
+{% block body %}
+{{ "{% block breadcrumb %}" }}
+    <ol class="breadcrumb">
+        <li><a href="{{ "{{ path('" ~ applicationName|lower ~ "_dashboard') }}" }}">{{ "{{ '" ~ applicationName|lower ~ "_backend.title.dashboard'|trans }}" }}</a></li>
+        <li><a href="{{ "{{ path('" ~ applicationName|lower ~ "_backend_group_index') }}" }}">{{ "{{ '" ~ applicationName|lower ~ "_backend.title.groups.index'|trans }}" }}</a></li>
+        <li>{{ "{{ '" ~ applicationName|lower ~ "_backend.title.groups.update'|trans }}" }}</li>
+    </ol>
+{{ "{% endblock %}" }}
+
+{{ "{% block content %}" }}
+<div class="row">
+    <div class="col-md-12">
+        <div class="box box-primary">
+            <form novalidate action="{{ "{{ path('" ~ applicationName|lower ~ "_backend_group_update', { 'id': group.id}) }}" }}" method="post">
+                <div class="box-body">
+                    {{ "{% include '" ~ applicationName ~ "BackendBundle:Group:_form.html.twig' %}" }}
+                    {{ "{{ actions.cancel(path('" ~ applicationName|lower ~ "_backend_group_index')) }}" }}
+                    {{ "{{ actions.submit() }}" }}
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{{ "{% endblock %}" }}
+{% endblock body %}

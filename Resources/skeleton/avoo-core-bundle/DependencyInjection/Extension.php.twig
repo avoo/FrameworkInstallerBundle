@@ -1,0 +1,79 @@
+<?php
+
+namespace {{ namespace }}\DependencyInjection;
+
+{% block use_statements %}
+use Sylius\Bundle\ResourceBundle\DependencyInjection\Extension\AbstractResourceExtension;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
+use Symfony\Component\DependencyInjection\Loader;
+{% endblock use_statements %}
+
+{% block class_definition %}
+/**
+ * This is the class that loads and manages your bundle configuration
+ *
+ * To learn more see {@link http://symfony.com/doc/current/cookbook/bundles/extension.html}
+ */
+class {{ applicationName }}CoreExtension extends AbstractResourceExtension implements PrependExtensionInterface
+{% endblock class_definition %}
+{
+{% block class_body %}
+    /**
+     * @var string $applicationName
+     */
+    protected $applicationName = '{{ applicationName|lower }}';
+
+    /**
+     * @var array $bundles
+     */
+    protected $bundles = array(
+        'sylius_locale'
+    );
+
+    /**
+     * @var array $configFiles
+     */
+    protected $configFiles = array(
+        'services.xml',
+        'forms.xml',
+        'oauth.xml',
+    );
+
+    /**
+     * {@inheritdoc}
+     */
+    public function load(array $config, ContainerBuilder $container)
+    {
+        $this->configure(
+            $config,
+            new Configuration(),
+            $container,
+            self::CONFIGURE_LOADER | self::CONFIGURE_DATABASE | self::CONFIGURE_PARAMETERS
+        );
+
+        //If Sylius locale does not exist, we use the default locale parameter
+        if (!$container->hasParameter('sylius.locale')) {
+            $container->setParameter('sylius.locale', $container->getParameter('locale'));
+        }
+
+        if (!$container->hasParameter('sylius.cache')) {
+            $container->setParameter('sylius.cache', array('type' => 'file_system'));
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function prepend(ContainerBuilder $container)
+    {
+        $config = $this->processConfiguration(new Configuration(), $container->getExtensionConfig($this->getAlias()));
+
+        foreach ($container->getExtensions() as $name => $extension) {
+            if (in_array($name, $this->bundles)) {
+                $container->prependExtensionConfig($name, array('driver' => $config['driver']));
+            }
+        }
+    }
+{% endblock class_body %}
+}

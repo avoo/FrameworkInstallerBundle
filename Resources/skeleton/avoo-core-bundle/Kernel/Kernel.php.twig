@@ -1,0 +1,129 @@
+<?php
+namespace {{ namespace }}\Kernel;
+
+{% block use_statements %}
+use Symfony\Component\Config\Loader\LoaderInterface;
+use Symfony\Component\HttpKernel\Kernel as BaseKernel;
+{% endblock use_statements %}
+
+{% block class_definition %}
+/**
+ * Class {{ applicationName }}Kernel
+ *
+ * @author Jérémy Jégou <jejeavo@gmail.com>
+ */
+abstract class Kernel extends BaseKernel
+{% endblock class_definition %}
+{
+{% block class_body %}
+    const VERSION         = '0.1.0-dev';
+    const VERSION_ID      = '00100';
+    const MAJOR_VERSION   = '0';
+    const MINOR_VERSION   = '1';
+    const RELEASE_VERSION = '0';
+    const EXTRA_VERSION   = 'DEV';
+
+    const ENV_DEV = 'dev';
+    const ENV_PROD = 'prod';
+    const ENV_TEST = 'test';
+    const ENV_STAGING = 'staging';
+
+    /**
+     * {@inheritdoc}
+     */
+    public function registerBundles()
+    {
+        $bundles = array(
+
+            // Avoo Bundles
+            new \Avoo\Bundle\InstallerBundle\AvooInstallerBundle(),
+
+            // Core Bundles
+            new \Symfony\Bundle\FrameworkBundle\FrameworkBundle(),
+            new \Symfony\Bundle\SecurityBundle\SecurityBundle(),
+            new \Symfony\Bundle\TwigBundle\TwigBundle(),
+            new \Symfony\Bundle\MonologBundle\MonologBundle(),
+            new \Symfony\Bundle\SwiftmailerBundle\SwiftmailerBundle(),
+            new \Symfony\Bundle\AsseticBundle\AsseticBundle(),
+            new \Sensio\Bundle\FrameworkExtraBundle\SensioFrameworkExtraBundle(),
+
+            //Sylius Bundles
+            new \Sylius\Bundle\ResourceBundle\SyliusResourceBundle(),
+            new \Sylius\Bundle\RbacBundle\SyliusRbacBundle(),
+
+            // Bundles
+            new \Doctrine\Bundle\DoctrineBundle\DoctrineBundle(),
+            new \Doctrine\Bundle\DoctrineCacheBundle\DoctrineCacheBundle(),
+            new \Stof\DoctrineExtensionsBundle\StofDoctrineExtensionsBundle(),
+            new \Lexik\Bundle\MaintenanceBundle\LexikMaintenanceBundle(),
+            new \FOS\JsRoutingBundle\FOSJsRoutingBundle(),
+            new \FOS\UserBundle\FOSUserBundle(),
+            new \Doctrine\Bundle\MigrationsBundle\DoctrineMigrationsBundle(),
+            new \Doctrine\Bundle\FixturesBundle\DoctrineFixturesBundle(),
+            new \Knp\Bundle\MenuBundle\KnpMenuBundle(),
+            new \Liip\ImagineBundle\LiipImagineBundle(),
+            new \Vich\UploaderBundle\VichUploaderBundle(),
+            new \Presta\SitemapBundle\PrestaSitemapBundle(),
+            new \Bazinga\Bundle\JsTranslationBundle\BazingaJsTranslationBundle(),
+            new \FOS\RestBundle\FOSRestBundle(),
+            new \JMS\SerializerBundle\JMSSerializerBundle($this),
+            new \WhiteOctober\PagerfantaBundle\WhiteOctoberPagerfantaBundle(),
+            new \Knp\Bundle\SnappyBundle\KnpSnappyBundle(),
+            new \Liuggio\ExcelBundle\LiuggioExcelBundle(),
+            new \HWI\Bundle\OAuthBundle\HWIOAuthBundle(),
+        );
+
+        if (in_array($this->getEnvironment(), array('dev', 'test'))) {
+            $bundles[] = new \Avoo\Bundle\GeneratorBundle\AvooGeneratorBundle();
+        }
+
+        return $bundles;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function registerContainerConfiguration(LoaderInterface $loader)
+    {
+        $rootDir = $this->getRootDir();
+
+        $loader->load($rootDir.'/config/config_'.$this->environment.'.yml');
+
+        if (is_file($file = $rootDir.'/config/config_'.$this->environment.'.local.yml')) {
+            $loader->load($file);
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getCacheDir()
+    {
+        if ($this->isVagrantEnvironment()) {
+            return '/dev/shm/{{ applicationName|lower }}/cache/'.$this->environment;
+        }
+
+        return parent::getCacheDir();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getLogDir()
+    {
+        if ($this->isVagrantEnvironment()) {
+            return '/dev/shm/{{ applicationName|lower }}/logs';
+        }
+
+        return parent::getLogDir();
+    }
+
+    /**
+     * @return boolean
+     */
+    protected function isVagrantEnvironment()
+    {
+        return (getenv('HOME') === '/home/vagrant' || getenv('VAGRANT') === 'VAGRANT') && is_dir('/dev/shm');
+    }
+{% endblock class_body %}
+}

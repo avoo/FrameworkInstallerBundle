@@ -1,0 +1,32 @@
+avoo_demo_news_index:
+    pattern: /
+    defaults:
+        _controller: avoo_demo.controller.news:indexAction
+
+avoo_demo_news_create:
+    pattern: /add
+    defaults:
+        _controller: avoo_demo.controller.news:createAction
+        _sylius:
+            redirect:
+                route: avoo_demo_news_show
+                parameters: { id: resource.id }
+
+avoo_demo_news_show:
+    pattern: /show/{id}
+    defaults:
+        _controller: avoo_demo.controller.news:showAction
+
+avoo_demo_news_edit:
+    pattern: /edit/{id}
+    defaults:
+        _controller: avoo_demo.controller.news:updateAction
+        _sylius:
+            redirect:
+                route: avoo_demo_news_show
+                parameters: { id: resource.id }
+
+avoo_demo_news_delete:
+    pattern: /delete/{id}
+    defaults:
+        _controller: avoo_demo.controller.news:deleteAction

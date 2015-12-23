@@ -1,0 +1,13 @@
+avoo_demo_root:
+    pattern: /
+    defaults:
+        _controller: FrameworkBundle:Redirect:redirect
+        route: avoo_demo_news_index
+        permanent: true
+
+avoo_demo_news_resource:
+    prefix: /news
+    resource: @AvooDemoBundle/Resources/config/routing/news.yml
+    defaults:
+        _sylius:
+            permission: false

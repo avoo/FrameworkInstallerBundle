@@ -1,0 +1,46 @@
+<?php
+
+namespace {{ namespace }};
+
+{% block use_statements %}
+use Sylius\Bundle\ResourceBundle\AbstractResourceBundle;
+use Sylius\Bundle\ResourceBundle\SyliusResourceBundle;
+{% endblock use_statements %}
+
+{% block class_definition %}
+class {{ applicationName }}CoreBundle extends AbstractResourceBundle
+{% endblock class_definition %}
+{
+{% block class_body %}
+    /**
+     * List Bundle supported drivers
+     *
+     * @return array
+     */
+    public static function getSupportedDrivers()
+    {
+        return array(
+            SyliusResourceBundle::DRIVER_DOCTRINE_ORM,
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getModelInterfaces()
+    {
+        return array(
+            '{{ applicationName }}\Component\Core\Model\UserInterface'  => '{{ applicationName|lower }}.model.user.class',
+            '{{ applicationName }}\Component\Core\Model\GroupInterface' => '{{ applicationName|lower }}.model.group.class',
+        );
+    }
+
+    /**
+    * {@inheritdoc}
+    */
+    protected function getModelNamespace()
+    {
+        return '{{ applicationName }}\Component\Core\Model';
+    }
+{% endblock class_body %}
+}

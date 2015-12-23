@@ -1,0 +1,18 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <parameters>
+        <parameter key="twig.extension.resource_security.class">{{ applicationName }}\Bundle\CoreBundle\Twig\Extension\SecurityExtension</parameter>
+    </parameters>
+
+    <services>
+        <service id="twig.extension.resource_security" class="%twig.extension.resource_security.class%" public="false">
+            <argument type="service" id="security.context" on-invalid="ignore" />
+            <argument type="service" id="sylius.authorization_checker" />
+            <tag name="twig.extension" />
+        </service>
+    </services>
+</container>

@@ -1,0 +1,135 @@
+<?php
+
+namespace {{ namespace }}\DependencyInjection;
+
+{% block use_statements %}
+use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
+use Symfony\Component\Config\Definition\Builder\TreeBuilder;
+use Symfony\Component\Config\Definition\ConfigurationInterface;
+{% endblock use_statements %}
+
+{% block class_definition %}
+/**
+ * This is the class that validates and merges configuration from your app/config files
+ *
+ * To learn more see {@link http://symfony.com/doc/current/cookbook/bundles/extension.html#cookbook-bundles-extension-config-class}
+ */
+class Configuration implements ConfigurationInterface
+{% endblock class_definition %}
+{
+{% block class_body %}
+    /**
+     * {@inheritdoc}
+     */
+    public function getConfigTreeBuilder()
+    {
+        $treeBuilder = new TreeBuilder();
+        $rootNode = $treeBuilder->root('{{ applicationName|lower }}_core');
+
+        $rootNode
+            ->addDefaultsIfNotSet()
+            ->children()
+                ->scalarNode('driver')->cannotBeOverwritten()->isRequired()->cannotBeEmpty()->end()
+            ->end();
+
+        $this->addClassesSection($rootNode);
+        $this->addRoutingSection($rootNode);
+
+        return $treeBuilder;
+    }
+
+    /**
+     * Adds `classes` section.
+     *
+     * @param ArrayNodeDefinition $node
+     */
+    private function addClassesSection(ArrayNodeDefinition $node)
+    {
+        $node
+            ->children()
+                ->arrayNode('classes')
+                    ->addDefaultsIfNotSet()
+                    ->children()
+                        ->arrayNode('user')
+                            ->addDefaultsIfNotSet()
+                            ->children()
+                                ->scalarNode('model')
+                                    ->defaultValue('{{ applicationName }}\Component\Core\Model\User')
+                                ->end()
+                                ->scalarNode('controller')
+                                    ->defaultValue('{{ applicationName }}\Bundle\CoreBundle\Controller\UserController')
+                                ->end()
+                                ->scalarNode('form')
+                                    ->defaultValue('{{ applicationName }}\Bundle\CoreBundle\Form\Type\UserType')
+                                ->end()
+                            ->end()
+                        ->end()
+                        ->arrayNode('group')
+                            ->addDefaultsIfNotSet()
+                            ->children()
+                                ->scalarNode('model')
+                                    ->defaultValue('{{ applicationName }}\Component\Core\Model\Group')
+                                ->end()
+                                ->scalarNode('controller')
+                                    ->defaultValue('Sylius\Bundle\ResourceBundle\Controller\ResourceController')
+                                ->end()
+                                ->scalarNode('form')
+                                    ->defaultValue('{{ applicationName }}\Bundle\CoreBundle\Form\Type\GroupType')
+                                ->end()
+                            ->end()
+                        ->end()
+                    ->end()
+                ->end()
+            ->end();
+    }
+
+    /**
+     * Adds `routing` section.
+     *
+     * @param ArrayNodeDefinition $node
+     */
+    private function addRoutingSection(ArrayNodeDefinition $node)
+    {
+        $node
+            ->children()
+                ->scalarNode('route_collection_limit')
+                    ->defaultValue(0)
+                    ->info('Limit the number of routes that are fetched when getting a collection,
+                    set to false to disable the limit.')
+                ->end()
+                ->scalarNode('route_uri_filter_regexp')
+                    ->defaultValue('')
+                    ->info('Regular expression filter which is used to skip the Sylius dynamic router for any
+                    request URI that matches.')
+                ->end()
+                ->arrayNode('routing')->isRequired()->cannotBeEmpty()
+                    ->info('Classes for which routes should be generated.')
+                    ->useAttributeAsKey('class_name')
+                    ->prototype('array')
+                    ->children()
+                        ->scalarNode('field')->isRequired()->cannotBeEmpty()
+                            ->info('Field representing the URI path.')
+                        ->end()
+                        ->scalarNode('prefix')->defaultValue('')->info('Prefix applied to all routes.')->end()
+                            ->arrayNode('defaults')->isRequired()->cannotBeEmpty()
+                                ->info('Defaults to add to the generated route.')
+                                ->children()
+                                    ->scalarNode('controller')->isRequired()->cannotBeEmpty()
+                                    ->info('Controller where the request should be routed.')
+                                ->end()
+                                ->scalarNode('repository')->isRequired()->cannotBeEmpty()
+                                    ->info('Repository where the router will find the class.')
+                                ->end()
+                                ->arrayNode('sylius')->isRequired()->cannotBeEmpty()
+                                    ->info('Sylius defaults to add to generated route.')
+                                    ->useAttributeAsKey('sylius')
+                                    ->prototype('variable')
+                                ->end()
+                            ->end()
+                        ->end()
+                    ->end()
+                ->end()
+            ->end();
+    }
+{% endblock class_body %}
+}

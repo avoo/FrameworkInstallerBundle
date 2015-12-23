@@ -1,0 +1,36 @@
+{{ applicationName|lower }}_backend_role_index:
+    path: /
+    methods: [GET]
+    defaults:
+        _controller: sylius.controller.role:indexAction
+        _sylius:
+            template: {{ applicationName }}BackendBundle:Role:index.html.twig
+            paginate: false
+            sorting:
+                left: asc
+
+{{ applicationName|lower }}_backend_role_create:
+    path: /add
+    methods: [GET, POST]
+    defaults:
+        _controller: sylius.controller.role:createAction
+        _sylius:
+            template: {{ applicationName }}BackendBundle:Role:create.html.twig
+            redirect: {{ applicationName|lower }}_backend_role_index
+
+{{ applicationName|lower }}_backend_role_update:
+    path: /edit/{id}
+    methods: [GET, PUT, POST]
+    defaults:
+        _controller: sylius.controller.role:updateAction
+        _sylius:
+            template: {{ applicationName }}BackendBundle:Role:update.html.twig
+            redirect: {{ applicationName|lower }}_backend_role_index
+
+{{ applicationName|lower }}_backend_role_delete:
+    path: /delete/{id}
+    methods: [DELETE]
+    defaults:
+        _controller: sylius.controller.role:deleteAction
+        _sylius:
+            redirect: {{ applicationName|lower }}_backend_role_index

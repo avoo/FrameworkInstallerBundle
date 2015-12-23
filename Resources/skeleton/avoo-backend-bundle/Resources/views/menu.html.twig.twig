@@ -1,0 +1,12 @@
+{% block extends %}
+{{ "{% extends 'knp_menu.html.twig' %}" }}
+{% endblock extends %}
+
+{% block body %}
+{{ "{% block label %}" }}
+    {{ "{% if item.labelAttribute('icon') %}" }}<i class="{{ "{{ item.labelAttribute('icon') }}" }}"></i>{{ "{% endif %}" }}
+    {{ "{% if not item.labelAttribute('iconOnly') %}" }}
+        <span>{{ "{% if options.allow_safe_labels and item.getExtra('safe_label', false) %}{{ item.label|trans|raw }}{% else %}{{ item.label|trans }}{% endif %}" }}</span>
+    {{ "{% endif %}" }}
+{{ "{% endblock %}" }}
+{% endblock body %}

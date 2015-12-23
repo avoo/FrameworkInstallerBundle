@@ -1,0 +1,61 @@
+{% macro list(news) %}
+    {% import '@AvooDemo/Macros/actions.html.twig' as actions %}
+
+    {% if news|length == 0 %}
+        <div class="text-muted text-center">{{ 'avoo_demo.empty.news'|trans }}</div>
+    {% else %}
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="box box-primary">
+                    <div class="box-body table-responsive no-padding">
+                        <table class="table table-hover">
+                            <thead>
+                            <tr>
+                                <th>{{ 'avoo_demo.label.title'|trans }}</th>
+                                <th>{{ 'avoo_demo.label.actions'|trans }}</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for article in news %}
+                                <tr>
+                                    <td>{{ article.title }}</td>
+                                    <td>
+                                        {{ actions.show(path('avoo_demo_news_show', { id : article.id })) }}
+                                        {{ actions.edit(path('avoo_demo_news_edit', { id : article.id })) }}
+                                        {{ actions.delete(path('avoo_demo_news_delete', { id : article.id })) }}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{ actions.pagination(news) }}
+    {% endif %}
+{% endmacro %}
+
+{% macro show(news) %}
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="box box-primary">
+                <div class="box-body table-responsive no-padding">
+                    <table class="table table-hover">
+                        <thead>
+                        <tr>
+                            <th>{{ 'avoo_demo.label.title'|trans }}</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>{{ news.title }}</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endmacro %}

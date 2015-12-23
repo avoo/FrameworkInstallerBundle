@@ -1,0 +1,86 @@
+{% block extends %}
+{{ "{% extends 'form_div_layout.html.twig' %}" }}
+{% endblock extends %}
+
+{% block body %}
+{{ "{% block form_errors %}" }}
+    {{ "{% spaceless %}" }}
+        {{ "{% if errors|length > 0 %}" }}
+            <div class="form-group has-error">
+                {{ "{% for error in errors %}" }}
+                    <div class="control-label col-sm-12">{{ "{{
+                        error.messagePluralization is null
+                        ? error.messageTemplate|trans(error.messageParameters, 'validators')
+                        : error.messageTemplate|transchoice(error.messagePluralization, error.messageParameters, 'validators')
+                        }}" }}</div>
+                {{ "{% endfor %}" }}
+            </div>
+        {{ "{% endif %}" }}
+    {{ "{% endspaceless %}" }}
+{{ "{% endblock form_errors %}" }}
+
+{{ "{% block form_start %}
+    {% spaceless %}
+        {% set attr = attr|merge({'class': attr.class|default('') ~ ' form-horizontal col-sm-12 text-center'}) %}
+        {{ parent() }}
+    {% endspaceless %}
+{% endblock form_start %}" }}
+
+{{ "{% block form_widget_simple %}" }}
+    {{ "{% spaceless %}" }}
+        {{ "{% set attr = attr|merge({'class': attr.class|default('') ~ ' form-control'}) %}" }}
+        {{ "{% set type = type|default('text') %}" }}
+
+        {{ "{% if 'file' == type %}" }}
+            <span class="btn-primary btn-lg file-overlay"><i class="icon-folder-open"></i> {{ "{{ 'ecup_backend.label.choose_file'|trans }}" }}</span>
+        {{ "{% endif %}" }}
+        {{ "{{ parent() }}" }}
+    {{ "{% endspaceless %}" }}
+{{ "{% endblock form_widget_simple %}" }}
+
+{{ "{% block form_label %}" }}
+    {{ "{% if label is not sameas(false) -%}" }}
+        {{ "{% set label_attr = label_attr|merge({'class': label_attr.class|default('') ~ ''}) %}" }}
+
+        {{ "{% if not compound -%}" }}
+            {{ "{% set label_attr = label_attr|merge({'for': id}) %}" }}
+        {{ "{%- endif %}" }}
+        {{ "{% if required -%}" }}
+            {{ "{% set label_attr = label_attr|merge({'class': (label_attr.class|default('') ~ ' required')|trim}) %}" }}
+        {{ "{%- endif %}" }}
+        {{ "{% if label is empty -%}" }}
+            {{ "{% set label = name|humanize %}" }}
+        {{ "{%- endif -%}" }}
+        <label{{ "{% for attrname, attrvalue in label_attr %} {{ attrname }}" }}="{{ "{{ attrvalue }}" }}"{{ "{% endfor %}" }}>
+            {{ "{{ label|trans({}, translation_domain) }}" }}
+            {{ "{% if required %}" }}
+                <span class="required text-red">&ast;</span>
+            {{ "{% endif %}" }}
+        </label>
+    {{ "{%- endif %}" }}
+{{ "{% endblock form_label %}" }}
+
+{{ "{% block form_row %}" }}
+    {{ "{% spaceless %}" }}
+        <div class="{{ "{{ form_group_class }}" }}">
+            {{ "{{ form_label(form) }}" }}
+            <div class="{{ "{{ row_class }}" }}">
+                {{ "{{ form_widget(form) }}" }}
+                {{ "{{ form_errors(form) }}" }}
+            </div>
+        </div>
+    {{ "{% endspaceless %}" }}
+{{ "{% endblock form_row %}" }}
+
+{{ "{% block textarea_widget %}" }}
+    {{ "{% set attr = attr|merge({'class': attr.class|default('') ~ ' form-control'}) %}" }}
+    <textarea {{ "{{ block('widget_attributes') }}" }}>{{ "{{ value }}" }}</textarea>
+{{ "{% endblock textarea_widget %}" }}
+
+{{ "{% block choice_widget_collapsed %}" }}
+    {{ "{% spaceless %}" }}
+        {{ "{% set attr = attr|merge({'class': attr.class|default('') ~ ' form-control'}) %}" }}
+        {{ "{{ parent() }}" }}
+    {{ "{% endspaceless %}" }}
+{{ "{% endblock choice_widget_collapsed %}" }}
+{% endblock body %}

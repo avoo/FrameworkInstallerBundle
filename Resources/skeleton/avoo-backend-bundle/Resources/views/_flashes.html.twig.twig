@@ -1,0 +1,10 @@
+{% block body %}
+{{ "{% for type, messages in app.session.flashbag.all() %}" }}
+    {{ "{% for key, message in messages %}" }}
+        <div class="alert bg-{{ "{{ type }}" }} fade in">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+            <p class="text-center">{{ "{{ message|trans }}" }}</p>
+        </div>
+    {{ "{% endfor %}" }}
+{{ "{% endfor %}" }}
+{% endblock body %}

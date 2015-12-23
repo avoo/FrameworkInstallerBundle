@@ -1,0 +1,242 @@
+<?php
+
+namespace {{ namespace }}\Command;
+
+{% block use_statements %}
+use Sensio\Bundle\GeneratorBundle\Command\Helper\QuestionHelper;
+use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Component\Console\Helper\HelperInterface;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Question\Question;
+{% endblock use_statements %}
+
+{% block class_definition %}
+/**
+ * Class CreateUserCommand
+ *
+ * @author Jérémy Jégou <jejeavo@gmail.com>
+ */
+class CreateUserCommand extends ContainerAwareCommand
+{% endblock class_definition %}
+{
+{% block class_body %}
+    /**
+     * @var array $roles
+     */
+    protected static $roles = array();
+
+    /**
+     * @see Command
+     */
+    protected function configure()
+    {
+        $this
+            ->setName('avoo:user:create')
+            ->setDescription('Create a user.')
+            ->setDefinition(array(
+                new InputArgument('username', InputArgument::REQUIRED, 'The username'),
+                new InputArgument('email', InputArgument::REQUIRED, 'The email'),
+                new InputArgument('password', InputArgument::REQUIRED, 'The password'),
+                new InputArgument('roles', InputArgument::IS_ARRAY, 'The roles'),
+                new InputOption('inactive', null, InputOption::VALUE_NONE, 'Set the user as inactive'),
+            ));
+    }
+
+    /**
+     * @see Command
+     */
+    protected function execute(InputInterface $input, OutputInterface $output)
+    {
+        $username   = $input->getArgument('username');
+        $email      = $input->getArgument('email');
+        $password   = $input->getArgument('password');
+        $inactive   = $input->getOption('inactive');
+
+        $userRepository = $this->getContainer()->get('{{ applicationName|lower }}.repository.user');
+        $user = $userRepository->createNew();
+
+        foreach (self::$roles as $role) {
+            $user->addAuthorizationRole($this->getContainer()->get('sylius.repository.role')->findOneByCode($role));
+        }
+
+        $user->setUsername($username);
+        $user->setEmail($email);
+        $user->setPlainPassword($password);
+        $user->setEnabled(!$inactive);
+
+        $this->getContainer()->get('fos_user.user_manager')->updateUser($user);
+
+        $output->writeln(sprintf('Created user <comment>%s</comment>', $username));
+    }
+
+    /**
+     * @see Command
+     */
+    protected function interact(InputInterface $input, OutputInterface $output)
+    {
+        $this->addUsername($input, $output);
+        $this->addEmail($input, $output);
+        $this->addPassword($input, $output);
+        $this->addRole($input, $output);
+    }
+
+    /**
+     * Add username
+     *
+     * @param InputInterface  $input
+     * @param OutputInterface $output
+     */
+    private function addUsername(InputInterface $input, OutputInterface $output)
+    {
+        if (!$input->getArgument('username')) {
+            $userRepository = $this->getContainer()->get('{{ applicationName|lower }}.repository.user');
+            $username = $this->getHelper('dialog')->askAndValidate(
+                $output,
+                'Please choose a username:',
+                function($username) use ($userRepository) {
+                    if (empty($username)) {
+                        throw new \Exception('Username can not be empty');
+                    }
+
+                    do {
+                        $exists = null !== $userRepository->findOneByUsername($username);
+
+                        if ($exists) {
+                            throw new \Exception('Username already used.');
+                        }
+
+                    } while ($exists);
+
+                    return $username;
+                }
+            );
+            $input->setArgument('username', $username);
+        }
+    }
+
+    /**
+     * Add email
+     *
+     * @param InputInterface  $input
+     * @param OutputInterface $output
+     */
+    private function addEmail(InputInterface $input, OutputInterface $output)
+    {
+        if (!$input->getArgument('email')) {
+            $userRepository = $this->getContainer()->get('{{ applicationName|lower }}.repository.user');
+            $email = $this->getHelper('dialog')->askAndValidate(
+                $output,
+                'Please choose an email:',
+                function($email) use ($userRepository) {
+                    if (empty($email)) {
+                        throw new \Exception('Email can not be empty');
+                    }
+
+                    do {
+                        $exists = null !== $userRepository->findOneByEmail($email);
+
+                        if ($exists) {
+                            throw new \Exception('Email already used.');
+                        }
+
+                    } while ($exists);
+
+                    return $email;
+                }
+            );
+            $input->setArgument('email', $email);
+        }
+    }
+
+    /**
+     * Add password
+     *
+     * @param InputInterface  $input
+     * @param OutputInterface $output
+     */
+    private function addPassword(InputInterface $input, OutputInterface $output)
+    {
+        if (!$input->getArgument('password')) {
+            $password = $this->getHelper('dialog')->askHiddenResponseAndValidate(
+                $output,
+                'Please choose a password:',
+                function($password) {
+                    if (empty($password)) {
+                        throw new \Exception('Password can not be empty');
+                    }
+
+                    return $password;
+                }
+            );
+            $input->setArgument('password', $password);
+        }
+    }
+
+    /**
+     * Add role
+     *
+     * @param InputInterface  $input
+     * @param OutputInterface $output
+     */
+    private function addRole($input, $output)
+    {
+        if ($input->getArgument('roles')) {
+            self::$roles = $input->getArgument('roles');
+
+            return;
+        }
+
+        $roles = $this->getContainer()->get('sylius.repository.role')->createQueryBuilder('r')
+            ->select('r.code')
+            ->getQuery()
+            ->getArrayResult();
+
+        $rolesList = array_map(function ($role) {
+            return $role['code'];
+        }, $roles);
+
+        $questionHelper = $this->getQuestionHelper();
+        $continue = true;
+
+        while (true) {
+            $question = new Question($questionHelper->getQuestion('Add user role', null), null);
+            $question->setAutocompleterValues($rolesList);
+            $role = $questionHelper->ask($input, $output, $question);
+
+            if (is_null($role)) {
+                $continue = false;
+                break;
+            }
+
+            if (!in_array($role, $rolesList)) {
+                throw new \RuntimeException(sprintf('The role code "%s" does not exist in database', $role));
+            }
+
+            self::$roles[] = $role;
+            break;
+        }
+
+        if ($continue) {
+            $this->addRole($input, $output);
+        }
+    }
+
+    /**
+     * Get question helper
+     *
+     * @return QuestionHelper|HelperInterface
+     */
+    protected function getQuestionHelper()
+    {
+        $question = $this->getHelperSet()->get('question');
+        if (!$question || get_class($question) !== 'Sensio\Bundle\GeneratorBundle\Command\Helper\QuestionHelper') {
+            $this->getHelperSet()->set($question = new QuestionHelper());
+        }
+
+        return $question;
+    }
+{% endblock class_body %}
+}

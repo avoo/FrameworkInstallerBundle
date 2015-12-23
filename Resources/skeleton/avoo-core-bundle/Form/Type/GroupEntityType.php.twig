@@ -1,0 +1,23 @@
+<?php
+
+namespace {{ namespace }}\Form\Type;
+
+{% block use_statements %}{% endblock use_statements %}
+
+{% block class_definition %}
+/**
+ * Class GroupEntityType
+ */
+class GroupEntityType extends GroupChoiceType
+{% endblock class_definition %}
+{
+{% block class_body %}
+    /**
+     * {@inheritdoc}
+     */
+    public function getParent()
+    {
+        return 'entity';
+    }
+{% endblock class_body %}
+}

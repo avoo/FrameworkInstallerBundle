@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
+                                      http://doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+
+    <mapped-superclass name="{{ applicationName }}\Component\Core\Model\UserOAuth" table="{{ applicationName|lower }}_user_oauth">
+        <unique-constraints>
+            <unique-constraint columns="user_id,provider" name="user_provider" />
+        </unique-constraints>
+
+        <id name="id" column="id" type="integer">
+            <generator strategy="AUTO" />
+        </id>
+
+        <field name="provider" type="string" />
+        <field name="identifier" type="string" />
+        <field name="accessToken" column="access_token" type="string" nullable="true" />
+
+        <many-to-one field="user" target-entity="{{ applicationName }}\Component\Core\Model\UserInterface" inversed-by="oauthAccounts">
+            <join-column name="user_id" referenced-column-name="id" />
+        </many-to-one>
+    </mapped-superclass>
+
+</doctrine-mapping>

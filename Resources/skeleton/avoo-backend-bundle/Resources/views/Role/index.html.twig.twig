@@ -1,0 +1,23 @@
+{% block extends %}
+{{ "{% extends '" ~ applicationName ~ "BackendBundle::layout.html.twig' %}" }}
+{% endblock extends %}
+
+{% block import %}
+{{ "{% from '" ~ applicationName ~ "BackendBundle:Role:macros.html.twig' import list %}" }}
+{% endblock import %}
+
+{% block body %}
+{{ "{% block title %}{{ '" ~ applicationName|lower ~ "_backend.title.roles.index'|trans }}{% endblock %}" }}
+
+{{ "{% block breadcrumb %}" }}
+    <ol class="breadcrumb">
+        <li><a href="{{ "{{ path('" ~ applicationName|lower ~ "_dashboard') }}" }}">{{ "{{ '" ~ applicationName|lower ~ "_backend.title.dashboard'|trans }}" }}</a></li>
+        <li>{{ "{{ '" ~ applicationName|lower ~ "_backend.title.roles.index'|trans }}" }}</li>
+    </ol>
+{{ "{% endblock %}" }}
+
+{{ "{% block content %}" }}
+    {{ "{{ actions.add(path('" ~ applicationName|lower ~ "_backend_role_create'), null, 'sylius.role.create') }}" }}
+    {{ "{{ list(roles) }}" }}
+{{ "{% endblock %}" }}
+{% endblock body %}

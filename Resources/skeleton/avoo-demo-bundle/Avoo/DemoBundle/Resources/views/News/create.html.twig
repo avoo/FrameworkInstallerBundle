@@ -1,0 +1,19 @@
+{% extends 'AvooDemoBundle::layout.html.twig' %}
+
+{% block title %}{{ 'avoo_demo.news.add'|trans }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="box box-primary">
+            <form novalidate action="{{ path('avoo_demo_news_create') }}" {{ form_enctype(form) }} method="POST">
+                <div class="box-body">
+                    {{ form_widget(form) }}
+                    {{ actions.cancel(path('avoo_demo_news_index')) }}
+                    {{ actions.submit() }}
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

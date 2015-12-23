@@ -1,0 +1,62 @@
+<?php
+
+namespace {{ namespace }}\Component\Core\Model;
+
+{% block use_statements %}{% endblock use_statements %}
+{% block class_definition %}
+/**
+ * User OAuth account interface.
+ */
+interface UserOAuthInterface extends UserAwareInterface
+{% endblock class_definition %}
+{
+{% block class_body %}
+    /**
+     * Get OAuth provider name.
+     *
+     * @return string
+     */
+    public function getProvider();
+
+    /**
+     * Set OAuth provider name.
+     *
+     * @param string $provider
+     *
+     * @return self
+     */
+    public function setProvider($provider);
+
+    /**
+     * Get OAuth identifier.
+     *
+     * @return string
+     */
+    public function getIdentifier();
+
+    /**
+     * Set OAuth identifier.
+     *
+     * @param string $identifier
+     *
+     * @return self
+     */
+    public function setIdentifier($identifier);
+
+    /**
+     * Get OAuth access token.
+     *
+     * @return string
+     */
+    public function getAccessToken();
+
+    /**
+     * Set OAuth access token.
+     *
+     * @param string $accessToken
+     *
+     * @return self
+     */
+    public function setAccessToken($accessToken);
+{% endblock class_body %}
+}

@@ -1,0 +1,33 @@
+<?php
+
+use {{ namespace }}\Kernel\Kernel;
+
+{% block use_statements %}{% endblock use_statements %}
+{% block class_definition %}
+/**
+ * Class AppKernel
+ *
+ * @author Jérémy Jégou <jejeavo@gmail.com>
+ */
+class AppKernel extends Kernel
+{% endblock class_definition %}
+{
+{% block class_body %}
+    /**
+     * {@inheritdoc}
+     */
+    public function registerBundles()
+    {
+        $bundles = array();
+
+        if (in_array($this->getEnvironment(), array('dev', 'test'))) {
+            $bundles[] = new \Symfony\Bundle\DebugBundle\DebugBundle();
+            $bundles[] = new \Symfony\Bundle\WebProfilerBundle\WebProfilerBundle();
+            $bundles[] = new \Sensio\Bundle\DistributionBundle\SensioDistributionBundle();
+            $bundles[] = new \Sensio\Bundle\GeneratorBundle\SensioGeneratorBundle();
+        }
+
+        return array_merge($bundles, parent::registerBundles());
+    }
+{% endblock class_body %}
+}

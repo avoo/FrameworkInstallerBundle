@@ -1,0 +1,13 @@
+{% block extends %}
+{{ "{% extends '" ~ applicationName ~ "BackendBundle::layout.html.twig' %}" }}
+{% endblock extends %}
+
+{% block body %}
+{{ "{% block title %}{{ '" ~ applicationName|lower ~ "_backend.title.dashboard'|trans }}{% endblock %}" }}
+
+{{ "{% block breadcrumb %}{% endblock %}" }}
+
+{{ "{% block content %}" }}
+    Dashboard
+{{ "{% endblock %}" }}
+{% endblock body %}

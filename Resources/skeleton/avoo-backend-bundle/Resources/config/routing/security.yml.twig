@@ -1,0 +1,11 @@
+{{ applicationName|lower }}_backend_security_login:
+    path: /login
+    methods: [GET]
+    defaults:
+        _controller: {{ applicationName|lower }}.controller.backend.security:loginAction
+
+{{ applicationName|lower }}_backend_security_login_check:
+    path: /login-check
+    methods: [POST]
+    defaults:
+        _controller: {{ applicationName|lower }}.controller.backend.security:checkAction

@@ -1,0 +1,28 @@
+<?php
+
+namespace {{ namespace }}\Controller;
+
+{% block use_statements %}
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\Response;
+{% endblock use_statements %}
+
+{% block class_definition %}
+/**
+ * Class DashboardController
+ */
+class DashboardController extends Controller
+{% endblock class_definition %}
+{
+{% block class_body %}
+    /**
+     * Index action
+     *
+     * @return Response
+     */
+    public function indexAction()
+    {
+        return $this->render('{{ applicationName }}BackendBundle:Dashboard:index.html.twig');
+    }
+{% endblock class_body %}
+}

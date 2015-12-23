@@ -1,0 +1,39 @@
+<?php
+
+namespace {{ namespace }}\Form\Type;
+
+{% block use_statements %}
+use Sylius\Bundle\ResourceBundle\Form\Type\AbstractResourceType;
+use Symfony\Component\Form\FormBuilderInterface;
+{% endblock use_statements %}
+
+{% block class_definition %}
+/**
+ * Class GroupType
+ */
+class GroupType extends AbstractResourceType
+{% endblock class_definition %}
+{
+{% block class_body %}
+    /**
+     * {@inheritdoc}
+     */
+    public function buildForm(FormBuilderInterface $builder, array $options)
+    {
+        $builder
+            ->add('name', 'text', array(
+                'label' => '{{ applicationName|lower }}_core.label.name'
+            ))
+        ;
+
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getName()
+    {
+        return '{{ applicationName|lower }}_group';
+    }
+{% endblock class_body %}
+}
