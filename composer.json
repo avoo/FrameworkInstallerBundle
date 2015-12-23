@@ -1,5 +1,5 @@
 {
-    "name": "avoo/avoo-installer-bundle",
+    "name": "avoo/framework-installer-bundle",
     "description": "Installer bundle for Symfony2 based on Sylius",
     "type": "symfony-bundle",
     "require": {
