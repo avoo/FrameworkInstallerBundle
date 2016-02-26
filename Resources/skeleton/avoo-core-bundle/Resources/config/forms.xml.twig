@@ -10,13 +10,5 @@
             <argument>%{{ applicationName|lower }}.model.user.class%</argument>
             <tag name="form.type" alias="{{ applicationName|lower }}_user" />
         </service>
-
-        <service id="{{ applicationName|lower }}.form.type.group" class="%{{ applicationName|lower }}.form.type.group.class%">
-            <argument>%{{ applicationName|lower }}.model.group.class%</argument>
-            <argument type="collection">
-                <argument>{{ applicationName|lower }}</argument>
-            </argument>
-            <tag name="form.type" alias="{{ applicationName|lower }}_group" />
-        </service>
     </services>
 </container>

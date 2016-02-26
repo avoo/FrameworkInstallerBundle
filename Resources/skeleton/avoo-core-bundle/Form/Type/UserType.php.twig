@@ -4,7 +4,6 @@ namespace {{ namespace }}\Form\Type;
 
 {% block use_statements %}
 use Sylius\Bundle\ResourceBundle\Form\Type\AbstractResourceType;
-use FOS\UserBundle\Form\Type\ProfileFormType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
@@ -15,24 +14,11 @@ class UserType extends AbstractResourceType
 {% endblock class_definition %}
 {
 {% block class_body %}
-    /** @var string */
-    private $dataClass;
-
-    /**
-     * {@inheritdoc}
-     */
-    public function __construct($dataClass)
-    {
-        $this->dataClass = $dataClass;
-    }
-
     /**
      * {@inheritdoc}
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $this->buildUserForm($builder, $options);
-
         $builder
             ->add('username', 'text', array(
                 'label' => '{{ applicationName|lower }}.label.username'
