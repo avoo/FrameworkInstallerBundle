@@ -138,7 +138,7 @@ class InstallCommand extends ContainerAwareCommand
             /** @var MySqlSchemaManager $schemaManager */
             $schemaManager = $this->getContainer()->get('doctrine')->getManager()->getConnection()->getSchemaManager();
         } catch (\Exception $exception) {
-            $message = "SQLSTATE[HY000] [1049] Unknown database '%s'";
+            $message = "SQLSTATE[42000] [1049] Unknown database '%s'";
             if (false !== strpos($exception->getMessage(), sprintf($message, $databaseName))) {
                 return false;
             }

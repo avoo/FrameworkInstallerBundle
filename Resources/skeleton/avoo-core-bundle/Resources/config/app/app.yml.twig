@@ -29,24 +29,6 @@ doctrine:
                         alias: {{ applicationName }}CoreBundle
                         prefix: {{ applicationName }}\Component\Core\Model
 
-vich_uploader:
-    db_driver: orm
-
-hwi_oauth:
-    firewall_name: main
-    resource_owners:
-        facebook:
-            type:                facebook
-            client_id:           <client_id>
-            client_secret:       <client_secret>
-
-lexik_maintenance:
-    driver:
-        ttl: 3600                                                                  # Optional ttl option, can be not set
-        # File driver
-        class: '\Lexik\Bundle\MaintenanceBundle\Drivers\FileDriver'                # class for file driver
-        options: {file_path: %kernel.root_dir%/cache/lock}
-
 fos_user:
     db_driver: orm
     firewall_name: main
