@@ -100,6 +100,9 @@ class ScriptHandler extends BaseScriptHandler
         $appDir = $options['symfony-app-dir'];
         $bundleDir = $rootDir . '/src/' . $applicationName;
 
+        $consoleDir = self::getConsoleDir($event, 'Install database');
+        static::executeCommand($event, $consoleDir, 'doctrine:database:create');
+
         $fileSystem = new Filesystem();
         $fileSystem->setTwigEnvironment(self::getTwigEnvironment());
 
@@ -219,6 +222,30 @@ EOF;
 
             $fileSystem->dumpFile($kernelFile, $updatedContent);
         }
+    }
+
+    /**
+     * Run installer command
+     *
+     * @param CommandEvent $event
+     */
+    public static function configureApp(CommandEvent $event)
+    {
+        $consoleDir = self::getConsoleDir($event, 'Configure application');
+
+        static::executeCommand($event, $consoleDir, 'avoo:install');
+    }
+
+    /**
+     * Create administrator user
+     *
+     * @param CommandEvent $event
+     */
+    public static function setupAdmin(CommandEvent $event)
+    {
+        $consoleDir = self::getConsoleDir($event, 'Administrator setup');
+
+        static::executeCommand($event, $consoleDir, 'avoo:user:create');
     }
 
     /**

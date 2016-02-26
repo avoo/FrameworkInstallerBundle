@@ -66,11 +66,6 @@ class InstallCommand extends ContainerAwareCommand
 
         $this->setupDatabase();
 
-        $this->output->writeln('');
-        $this->output->writeln('<info>Administration setup.</info>');
-
-        $this->setupAdmin();
-
         return $this;
     }
 
@@ -84,31 +79,11 @@ class InstallCommand extends ContainerAwareCommand
         $commands = array();
         if (!$this->isDatabaseExist()) {
             $commands[] = 'doctrine:database:create';
-            $commands[] = 'doctrine:migrations:diff';
-            $commands[] = 'doctrine:migrations:migrate';
-        } else {
-            if ($this->dialog->askConfirmation(
-                $this->output,
-                '<question>Your database already exists. Would you like to reset it? (y/N)</question> ',
-                false
-            )
-            ) {
-                $commands['doctrine:database:drop'] = array('--force' => true);
-                $commands[] = 'doctrine:database:create';
-            } elseif ($this->getContainer()->get('doctrine')->getManager()->getConnection()->getSchemaManager()
-                ->tablesExist(array('sylius_role'))
-            ) {
-                if ($this->dialog->askConfirmation(
-                    $this->output,
-                    '<question>Your database contains schema. Do you want to reset it? (y/N)</question> ',
-                    false
-                )
-                ) {
-                    $commands['doctrine:schema:drop'] = array('--force' => true);
-                }
-            }
         }
 
+        $commands['doctrine:schema:drop'] = array('--force' => true);
+        $commands[] = 'doctrine:migrations:diff';
+        $commands[] = 'doctrine:migrations:migrate';
         $commands[] = 'sylius:rbac:initialize';
 
         foreach ($commands as $key => $value) {
@@ -150,20 +125,6 @@ class InstallCommand extends ContainerAwareCommand
             return in_array($databaseName, $schemaManager->listDatabases());
         } catch(\PDOException $e) {
             return false;
-        }
-    }
-
-    /**
-     * Setup admin
-     */
-    protected function setupAdmin()
-    {
-        if ($this->dialog->askConfirmation(
-            $this->output,
-            '<question>Do you want to create an administrator account? (y/N)</question> ',
-            false
-        )) {
-            $this->runCommand('avoo:user:create');
         }
     }
 
