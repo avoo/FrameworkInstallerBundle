@@ -40,6 +40,7 @@ class ScriptHandler extends BaseScriptHandler
         }
 
         $output->writeln('<info>Installing the Avoo Demo bundle.</info>');
+        $output->writeln('');
 
         $kernelFile = $rootDir . '/app/AppKernel.php';
         $configFile = $rootDir . '/app/config/config_dev.yml';
@@ -98,6 +99,7 @@ class ScriptHandler extends BaseScriptHandler
         }
 
         $output->writeln('<info>Installing Core bundle.</info>');
+        $output->writeln('');
 
         $bundleDir = $rootDir . '/src/' . $applicationName;
 
@@ -162,6 +164,8 @@ class ScriptHandler extends BaseScriptHandler
         }
 
         $output->writeln('<info>Installing Backend bundle.</info>');
+        $output->writeln('');
+
         $bundleDir = $rootDir . '/src/' . $applicationName;
 
         $fileSystem = new Filesystem();
