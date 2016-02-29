@@ -69,6 +69,7 @@ class InstallCommand extends ContainerAwareCommand
     {
         $this->setupCore();
         $this->setupBackend();
+        $this->runCommand('cache:clear');
         $this->setupDatabase();
         $this->setupAdministrator();
 
