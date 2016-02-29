@@ -5,6 +5,11 @@ namespace Avoo\Bundle\InstallerBundle\Composer;
 use Composer\Script\CommandEvent;
 use Avoo\Bundle\InstallerBundle\Filesystem\Filesystem;
 use Sensio\Bundle\DistributionBundle\Composer\ScriptHandler as BaseScriptHandler;
+use Symfony\Component\Console\Helper\QuestionHelper;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Question\ConfirmationQuestion;
+use Symfony\Component\Console\Question\Question;
 
 /**
  * Class ScriptHandler
@@ -16,30 +21,31 @@ class ScriptHandler extends BaseScriptHandler
     /**
      * Avoo demo bundle install
      *
-     * @param CommandEvent $event
+     * @param InputInterface  $input
+     * @param OutputInterface $output
+     * @param QuestionHelper  $helper
      */
-    public static function installAvooDemoBundle(CommandEvent $event)
+    public static function installAvooDemoBundle(InputInterface $input, OutputInterface $output, QuestionHelper $helper)
     {
         $rootDir = getcwd();
-        $options = self::getOptions($event);
+
         if (file_exists($rootDir.'/src/Avoo/DemoBundle')) {
             return;
         }
         if (!getenv('AVOO_DEMO')) {
-            if (!$event->getIO()->askConfirmation('Would you like to install Avoo Demo bundle? [y/n] ', true)) {
+            $question = new ConfirmationQuestion('Would you like to install Avoo Demo bundle? [y/n] ', true);
+            if (!$helper->ask($input, $output, $question)) {
                 return;
             }
         }
 
-        $event->getIO()->write('Installing the Avoo Demo bundle.');
+        $output->write('Installing the Avoo Demo bundle.');
 
-        $appDir = $options['symfony-app-dir'];
-
-        $kernelFile = $appDir . '/AppKernel.php';
-        $configFile = $appDir . '/config/config_dev.yml';
+        $kernelFile = $rootDir . '/app/AppKernel.php';
+        $configFile = $rootDir . '/app/config/config_dev.yml';
 
         $fileSystem = new Filesystem();
-        $fileSystem->mirror(__DIR__.'/../Resources/skeleton/avoo-demo-bundle', $rootDir.'/src', null, array('override' => true));
+        $fileSystem->mirror(__DIR__.'/../Resources/skeleton/avoo-demo-bundle', $rootDir . '/src', null, array('override' => true));
 
         $ref = '$bundles[] = new \Symfony\Bundle\WebProfilerBundle\WebProfilerBundle();';
         $bundleDeclaration = "\$bundles[] = new \\Avoo\\DemoBundle\\AvooDemoBundle();";
@@ -67,41 +73,33 @@ class ScriptHandler extends BaseScriptHandler
             $fileSystem->dumpFile($configFile, $updatedContent);
         }
 
-        self::patchAvooDemoBundleConfiguration($appDir, $fileSystem);
+        self::patchAvooDemoBundleConfiguration($rootDir, $fileSystem);
     }
 
     /**
      * Avoo core bundle install
      *
-     * @param CommandEvent $event
+     * @param InputInterface  $input
+     * @param OutputInterface $output
+     * @param QuestionHelper  $helper
      */
-    public static function installCoreBundle(CommandEvent $event)
+    public static function installCoreBundle(InputInterface $input, OutputInterface $output, QuestionHelper $helper)
     {
         $rootDir = getcwd();
-        $options = self::getOptions($event);
-
-        if (!$event->getIO()->askConfirmation('Would you like to install default core bundle (Recommended)? [y/n] ', true)) {
+        $question = new ConfirmationQuestion('Would you like to install default core bundle (Recommended)? [y/n] ', true);
+        if (!$helper->ask($input, $output, $question)) {
             return;
         }
 
-        $applicationName = $event->getIO()->askAndValidate('Choose your application name: ', function($answer) {
-            if (!preg_match('/^[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*$/', $answer)) {
-                throw new \InvalidArgumentException('The application name contains invalid characters.');
-            }
-
-            return ucfirst(strtolower($answer));
-        });
+        $applicationName = self::getApplicationName($input, $output, $helper);
 
         if (is_dir($rootDir.'/src/' . $applicationName . '/CoreBundle')) {
             return;
         }
 
-        $event->getIO()->write('Installing Core bundle.');
-        $appDir = $options['symfony-app-dir'];
-        $bundleDir = $rootDir . '/src/' . $applicationName;
+        $output->write('Installing Core bundle.');
 
-        $consoleDir = self::getConsoleDir($event, 'Install database');
-        static::executeCommand($event, $consoleDir, 'doctrine:database:create');
+        $bundleDir = $rootDir . '/src/' . $applicationName;
 
         $fileSystem = new Filesystem();
         $fileSystem->setTwigEnvironment(self::getTwigEnvironment());
@@ -110,7 +108,7 @@ class ScriptHandler extends BaseScriptHandler
         self::buildCoreFiles($bundleDir . '/Bundle/CoreBundle/', $applicationName, $fileSystem);
         self::buildAppFiles(getcwd(), $applicationName, $fileSystem);
 
-        $configFile = $appDir . '/config/config.yml';
+        $configFile = $rootDir . '/app/config/config.yml';
         $ref = '- { resource: security.yml }';
         $configDeclaration = '- { resource: @' . $applicationName . 'CoreBundle/Resources/config/app/' . strtolower($applicationName) . '.yml }';
         $content = file_get_contents($configFile);
@@ -124,7 +122,7 @@ class ScriptHandler extends BaseScriptHandler
             $fileSystem->dumpFile($configFile, $updatedContent);
         }
 
-        $kernelFile = $appDir . '/AppKernel.php';
+        $kernelFile = $rootDir . '/app/AppKernel.php';
 
         $fileSystem = new Filesystem();
         $ref = '$bundles = array(';
@@ -144,31 +142,26 @@ class ScriptHandler extends BaseScriptHandler
     /**
      * Avoo core bundle install
      *
-     * @param CommandEvent $event
+     * @param InputInterface  $input
+     * @param OutputInterface $output
+     * @param QuestionHelper  $helper
      */
-    public static function installBackendBundle(CommandEvent $event)
+    public static function installBackendBundle(InputInterface $input, OutputInterface $output, QuestionHelper $helper)
     {
         $rootDir = getcwd();
-        $options = self::getOptions($event);
 
-        if (!$event->getIO()->askConfirmation('Would you like to install default backend bundle (Recommended)? [y/n] ', true)) {
+        $question = new ConfirmationQuestion('Would you like to install default backend bundle (Recommended)? [y/n] ', true);
+        if (!$helper->ask($input, $output, $question)) {
             return;
         }
 
-        $applicationName = $event->getIO()->askAndValidate('Choose your application name: ', function($answer) {
-            if (!preg_match('/^[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*$/', $answer)) {
-                throw new \InvalidArgumentException('The application name contains invalid characters.');
-            }
-
-            return ucfirst(strtolower($answer));
-        });
+        $applicationName = self::getApplicationName($input, $output, $helper);
 
         if (is_dir($rootDir.'/src/' . $applicationName . '/BackendBundle')) {
             return;
         }
 
-        $event->getIO()->write('Installing Backend bundle.');
-        $appDir = $options['symfony-app-dir'];
+        $output->write('Installing Backend bundle.');
         $bundleDir = $rootDir . '/src/' . $applicationName;
 
         $fileSystem = new Filesystem();
@@ -193,7 +186,7 @@ EOF;
             $fileSystem->dumpFile($routingPath, $updatedContent);
         }
 
-        $configFile = $appDir . '/config/config.yml';
+        $configFile = $rootDir . '/app/config/config.yml';
         $ref = '- { resource: security.yml }';
         $configDeclaration = '- { resource: @' . $applicationName . 'BackendBundle/Resources/config/app/' . strtolower($applicationName) . '.yml }';
         $content = file_get_contents($configFile);
@@ -207,7 +200,7 @@ EOF;
             $fileSystem->dumpFile($configFile, $updatedContent);
         }
 
-        $kernelFile = $appDir . '/AppKernel.php';
+        $kernelFile = $rootDir . '/app/AppKernel.php';
 
         $fileSystem = new Filesystem();
         $ref = '$bundles = array(';
@@ -225,27 +218,26 @@ EOF;
     }
 
     /**
-     * Run installer command
+     * Get application name
      *
-     * @param CommandEvent $event
-     */
-    public static function configureApp(CommandEvent $event)
-    {
-        $consoleDir = self::getConsoleDir($event, 'Configure application');
-
-        static::executeCommand($event, $consoleDir, 'avoo:install');
-    }
-
-    /**
-     * Create administrator user
+     * @param InputInterface  $input
+     * @param OutputInterface $output
+     * @param QuestionHelper  $helper
      *
-     * @param CommandEvent $event
+     * @return string
      */
-    public static function setupAdmin(CommandEvent $event)
+    private static function getApplicationName(InputInterface $input, OutputInterface $output, QuestionHelper $helper)
     {
-        $consoleDir = self::getConsoleDir($event, 'Administrator setup');
+        $question = new Question('Choose your application name: ');
+        $question->setValidator(function($answer) {
+            if (!preg_match('/^[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*$/', $answer)) {
+                throw new \InvalidArgumentException('The application name contains invalid characters.');
+            }
 
-        static::executeCommand($event, $consoleDir, 'avoo:user:create');
+            return ucfirst(strtolower($answer));
+        });
+
+        return $helper->ask($input, $output, $question);
     }
 
     /**
@@ -331,44 +323,6 @@ EOF;
     }
 
     /**
-     * Remove installer files
-     *
-     * @param CommandEvent $event
-     */
-    public static function removeFilesInstaller(CommandEvent $event)
-    {
-        $options = self::getOptions($event);
-        $appDir = $options['symfony-app-dir'];
-
-        if (!is_dir($appDir)) {
-            return;
-        }
-
-        if (!is_dir($appDir.'/AvooStandard')) {
-            return;
-        }
-
-        $fileSystem = new Filesystem();
-        $fileSystem->remove($appDir.'/AvooStandard');
-    }
-
-    /**
-     * Init project
-     *
-     * @param CommandEvent $event
-     */
-    public static function initProject(CommandEvent $event)
-    {
-        $consoleDir = static::getConsoleDir($event, 'install avoo');
-
-        if (null === $consoleDir) {
-            return;
-        }
-
-        self::executeCommand($event, $consoleDir, 'avoo:install');
-    }
-
-    /**
      * Get the twig environment that will render skeletons
      *
      * @return \Twig_Environment
@@ -390,12 +344,12 @@ EOF;
     }
 
     /**
-     * @param string     $appDir
+     * @param string     $rootDir
      * @param Filesystem $fileSystem
      */
-    private static function patchAvooDemoBundleConfiguration($appDir, Filesystem $fileSystem)
+    private static function patchAvooDemoBundleConfiguration($rootDir, Filesystem $fileSystem)
     {
-        $routingFile = $appDir.'/config/routing_dev.yml';
+        $routingFile = $rootDir . '/app/config/routing_dev.yml';
         $routingData = file_get_contents($routingFile).<<<EOF
 
 # AvooDemoBundle routes (to be removed)

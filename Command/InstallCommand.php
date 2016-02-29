@@ -2,14 +2,19 @@
 
 namespace Avoo\Bundle\InstallerBundle\Command;
 
+use Avoo\Bundle\InstallerBundle\Composer\ScriptHandler;
 use Doctrine\DBAL\Schema\MySqlSchemaManager;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
-use Symfony\Component\Console\Helper\DialogHelper;
+use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Question\ConfirmationQuestion;
 
+/**
+ * Class InstallCommand
+ */
 class InstallCommand extends ContainerAwareCommand
 {
     /**
@@ -23,9 +28,9 @@ class InstallCommand extends ContainerAwareCommand
     protected $output;
 
     /**
-     * @var DialogHelper $dialog
+     * @var QuestionHelper $helper
      */
-    protected $dialog;
+    protected $helper;
 
     /**
      * {@inheritdoc}
@@ -45,7 +50,7 @@ class InstallCommand extends ContainerAwareCommand
     {
         $this->input = $input;
         $this->output = $output;
-        $this->dialog = $this->getHelperSet()->get('dialog');
+        $this->helper = $this->getHelperSet()->get('question');
 
         $output->writeln('<info>Installing Avoo.</info>');
         $output->writeln('');
@@ -62,11 +67,49 @@ class InstallCommand extends ContainerAwareCommand
      */
     protected function install()
     {
-        $this->output->writeln('<info>Setting up database.</info>');
-
+        $this->setupCore();
+        $this->setupBackend();
         $this->setupDatabase();
+        $this->setupAdministrator();
 
         return $this;
+    }
+
+    /**
+     * Setup Core
+     */
+    protected function setupCore()
+    {
+        ScriptHandler::installCoreBundle($this->input, $this->output, $this->helper);
+    }
+
+    /**
+     * Setup backend
+     */
+    protected function setupBackend()
+    {
+        ScriptHandler::installBackendBundle($this->input, $this->output, $this->helper);
+    }
+
+    /**
+     * Setup database
+     */
+    protected function setupDatabase()
+    {
+        $this->initializeDatabase();
+    }
+
+    /**
+     * Setup administrator
+     */
+    protected function setupAdministrator()
+    {
+        $question = new ConfirmationQuestion('Would you like to create default administrator user (Recommended)? [y/n] ', true);
+        if (!$this->helper->ask($this->input, $this->output, $question)) {
+            return;
+        }
+
+        $this->runCommand('avoo:user:create');
     }
 
     /**
@@ -74,8 +117,10 @@ class InstallCommand extends ContainerAwareCommand
      *
      * @throws \Exception
      */
-    protected function setupDatabase()
+    protected function initializeDatabase()
     {
+        $this->output->writeln('<info>Setting up database.</info>');
+
         $commands = array();
         if (!$this->isDatabaseExist()) {
             $commands[] = 'doctrine:database:create';
@@ -83,7 +128,7 @@ class InstallCommand extends ContainerAwareCommand
 
         $commands['doctrine:schema:drop'] = array('--force' => true);
         $commands[] = 'doctrine:migrations:diff';
-        $commands[] = 'doctrine:migrations:migrate';
+        $commands['doctrine:migrations:migrate'] = array('--no-interaction' => true);
         $commands[] = 'sylius:rbac:initialize';
 
         foreach ($commands as $key => $value) {
