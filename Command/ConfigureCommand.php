@@ -2,18 +2,19 @@
 
 namespace Avoo\Bundle\InstallerBundle\Command;
 
-use Avoo\Bundle\InstallerBundle\Composer\ScriptHandler;
+use Doctrine\DBAL\Schema\MySqlSchemaManager;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Question\ConfirmationQuestion;
 
 /**
- * Class InstallCommand
+ * Class ConfigureCommand
  */
-class InstallCommand extends ContainerAwareCommand
+class ConfigureCommand extends ContainerAwareCommand
 {
     /**
      * @var InputInterface $input
@@ -36,8 +37,8 @@ class InstallCommand extends ContainerAwareCommand
     protected function configure()
     {
         $this
-            ->setName('avoo:install')
-            ->setDescription('Avoo installer.')
+            ->setName('avoo:configure')
+            ->setDescription('Avoo framework configuration.')
         ;
     }
 
@@ -50,42 +51,85 @@ class InstallCommand extends ContainerAwareCommand
         $this->output = $output;
         $this->helper = $this->getHelperSet()->get('question');
 
-        $output->writeln('<info>Installing Avoo.</info>');
+        $output->writeln('<info>Configuring Avoo.</info>');
         $output->writeln('');
 
-        $this->install();
+        $this->setupDatabase();
+        $this->setupAdministrator();
 
-        $output->writeln('<info>Install complete, now you can run the command avoo:configure</info>');
+        $output->writeln('<info>Avoo has been successfully installed and configured.</info>');
     }
 
     /**
-     * Install Avoo framework
+     * Setup database
+     */
+    protected function setupDatabase()
+    {
+        $this->output->writeln('<info>Setting up database.</info>');
+
+        $commands = array();
+        if (!$this->isDatabaseExist()) {
+            $commands[] = 'doctrine:database:create';
+        }
+
+        $commands['doctrine:schema:drop'] = array('--force' => true);
+        $commands[] = 'doctrine:migrations:diff';
+        $commands['doctrine:migrations:migrate'] = array('--no-interaction' => true);
+        $commands[] = 'sylius:rbac:initialize';
+
+        foreach ($commands as $key => $value) {
+            if (is_string($key)) {
+                $command = $key;
+                $parameters = $value;
+            } else {
+                $command = $value;
+                $parameters = array();
+            }
+
+            $this->runCommand($command, $parameters);
+        }
+    }
+
+    /**
+     * Setup administrator
+     */
+    protected function setupAdministrator()
+    {
+        $question = new ConfirmationQuestion('Would you like to create default administrator user (Recommended)? [y/n] ', true);
+        if (!$this->helper->ask($this->input, $this->output, $question)) {
+            return;
+        }
+
+        $this->runCommand('avoo:user:create');
+    }
+
+    /**
+     * Is database exist
      *
-     * @return $this
+     * @return bool
+     * @throws \Exception
      */
-    protected function install()
+    private function isDatabaseExist()
     {
-        $this->setupCore();
-        $this->setupBackend();
-        $this->runCommand('cache:clear', array('--no-warmup' => true));
+        $databaseName = $this->getContainer()->getParameter('database_name');
 
-        return $this;
-    }
+        try {
+            /** @var MySqlSchemaManager $schemaManager */
+            $schemaManager = $this->getContainer()->get('doctrine')->getManager()->getConnection()->getSchemaManager();
+        } catch (\Exception $exception) {
+            $message = "SQLSTATE[42000] [1049] Unknown database '%s'";
+            if (false !== strpos($exception->getMessage(), sprintf($message, $databaseName))) {
+                return false;
+            }
 
-    /**
-     * Setup Core
-     */
-    protected function setupCore()
-    {
-        ScriptHandler::installCoreBundle($this->input, $this->output, $this->helper);
-    }
+            throw $exception;
+        }
 
-    /**
-     * Setup backend
-     */
-    protected function setupBackend()
-    {
-        ScriptHandler::installBackendBundle($this->input, $this->output, $this->helper);
+        try {
+            return in_array($databaseName, $schemaManager->listDatabases());
+        } catch(\PDOException $e) {
+            return false;
+        }
     }
 
     /**
