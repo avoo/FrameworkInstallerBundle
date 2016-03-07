@@ -67,7 +67,6 @@ class InstallCommand extends ContainerAwareCommand
     {
         $this->setupCore();
         $this->setupBackend();
-        $this->runCommand('assets:install web');
         $this->runCommand('cache:clear', array('--no-warmup' => true));
 
         return $this;
