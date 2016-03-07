@@ -2,7 +2,6 @@
 
 namespace Avoo\Bundle\InstallerBundle\Command;
 
-use Doctrine\DBAL\Schema\MySqlSchemaManager;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -69,10 +68,6 @@ class ConfigureCommand extends ContainerAwareCommand
         $this->output->writeln('<info>Setting up database.</info>');
 
         $commands = array();
-        if (!$this->isDatabaseExist()) {
-            $commands[] = 'doctrine:database:create';
-        }
-
         $commands['doctrine:schema:drop'] = array('--force' => true);
         $commands[] = 'doctrine:migrations:diff';
         $commands['doctrine:migrations:migrate'] = array('--no-interaction' => true);
@@ -102,35 +97,6 @@ class ConfigureCommand extends ContainerAwareCommand
         }
 
         $this->runCommand('avoo:user:create');
-    }
-
-    /**
-     * Is database exist
-     *
-     * @return bool
-     * @throws \Exception
-     */
-    private function isDatabaseExist()
-    {
-        $databaseName = $this->getContainer()->getParameter('database_name');
-
-        try {
-            /** @var MySqlSchemaManager $schemaManager */
-            $schemaManager = $this->getContainer()->get('doctrine')->getManager()->getConnection()->getSchemaManager();
-        } catch (\Exception $exception) {
-            $message = "SQLSTATE[42000] [1049] Unknown database '%s'";
-            if (false !== strpos($exception->getMessage(), sprintf($message, $databaseName))) {
-                return false;
-            }
-
-            throw $exception;
-        }
-
-        try {
-            return in_array($databaseName, $schemaManager->listDatabases());
-        } catch(\PDOException $e) {
-            return false;
-        }
     }
 
     /**
