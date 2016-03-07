@@ -56,7 +56,7 @@ class ConfigureCommand extends ContainerAwareCommand
 
         $this->setupDatabase();
         $this->setupAdministrator();
-        $this->runCommand('assets:install web');
+        $this->runCommand('assets:install', array('web' => true));
 
         $output->writeln('<info>Avoo has been successfully installed and configured.</info>');
     }
