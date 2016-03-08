@@ -35,13 +35,6 @@ fos_user:
     user_class: %{{ applicationName|lower }}.model.user.class%
 
 sylius_rbac:
-    classes:
-        role:
-            form:
-                choice: Sylius\Bundle\RbacBundle\Form\Type\RoleEntityType
-        permission:
-            form:
-                choice: Sylius\Bundle\RbacBundle\Form\Type\PermissionEntityType
     permissions:
         {{ applicationName|lower }}.manage.user: Manage users
         {{ applicationName|lower }}.user.show: Show user
@@ -123,3 +116,10 @@ sylius_rbac:
     roles_hierarchy:
         administrator: [it, support, accounts_manager]
         it: [security_auditor, developer]
+    classes:
+        role:
+            form:
+                choice: Sylius\Bundle\RbacBundle\Form\Type\RoleEntityType
+        permission:
+            form:
+                choice: Sylius\Bundle\RbacBundle\Form\Type\PermissionEntityType
